@@ -2,41 +2,74 @@
 
 presets = {
     free: 'return 0;',
-    constant: 'return 0.5;',
-    spring: 'return -x;',
-    nspring: 'return x;',
-    damping: 'return -u;',
-    ndamping: 'return u;',
-    friction: 'return -Math.sign(u) * 0.4;',
-    nfriction: 'return Math.sign(u) * 0.4;',
-    pd1: 'return -1 * x - 1 * u;',
-    pd2: 'return -2 * x - 0.5 * u;',
-    pd3: 'return -0.5 * x - 2 * u;',
-    comb1: 'return -1 * x + 0.5 * u;',
-    comb2: 'return 1 * x - 0.5 * u;',
-    comb3: 'return -u + 0.5',
-    comb4: 'return -x + 0.5',
-    comb5: 'return 0.3 - 1 * x - 1 * u;',
-    nl1: 'return -Math.sign(x);',
-    nl2: 'return Math.cos(5 * 3.1415926 * x);',
+    constant: 'var force = 0.5;\nreturn force;',
+    spring: 'var force = -x;\nreturn force;',
+    nspring: 'var force = x;\nreturn force;',
+    damping: 'var force = -u;\nreturn force;',
+    ndamping: 'var force = u;\nreturn force;',
+    friction: 'var force = -Math.sign(u) * 0.4;\nreturn force;',
+    nfriction: 'var force = Math.sign(u) * 0.4;\nreturn force;',
+    pd1: 'var control = -1 * x - 1 * u;\nreturn control;',
+    pd2: 'var control = -2 * x - 0.5 * u;\nreturn control;',
+    pd3: 'var control = -0.5 * x - 2 * u;\nreturn control;',
+    comb1: 'var force = -1 * x + 0.5 * u;\nreturn force;',
+    comb2: 'var force = 1 * x - 0.5 * u;\nreturn force;',
+    comb3: 'var force = -u + 0.5\nreturn force;',
+    comb4: 'var force = -x + 0.5\nreturn force;',
+    comb5: 'var force = 0.3;\nvar control = - 1 * x - 1 * u;\nreturn force + control;',
+    nl1: 'var control = -Math.sign(x);\nreturn control;',
+    nl2: 'var force = Math.cos(5 * 3.1415926 * x);\nreturn force;',
+    pd1_sat: 'var control = -1 * x - 1 * u;\ncontrol = clamp(control, -0.2, 0.2)\nreturn control;',
+    pd1_d1: 'var control = -1 * x - 1 * u;\ndelayedControl(control, 0.6);\nreturn control_delayed;',
+    pd1_d2: 'var control = -1 * x - 1 * u;\nlerpControl(control, 3);\nreturn control_lerp;',
 }
 
 
-var adead = 0;
-var alimit = 100;
-function fxy_eval(f, x, y){
+function fxy_eval(f, x, y, allow_delay){
+    if (allow_delay===undefined) allow_delay=false;
+    if (!allow_delay) allowDelay = false;
     var res = f(x, y);
-    if (res > alimit) return alimit;
-    if (res < -alimit) return -alimit;
-    if (res < adead && res > 0) return adead;
-    if (res > -adead && res < 0) return -adead;
+    if (!allow_delay) allowDelay = true;
     return res;
+}
+
+var control_delayed_timeout = [];
+var control_delayed = 0;
+var control_lerp = 0;
+var allowDelay = true;
+function delayedControl(control, time_seconds){
+    if (allowDelay){
+        control_delayed_timeout.push(setTimeout(function(){control_delayed = control;}, Math.ceil(time_seconds * 1000)));
+    }
+    else{
+        control_delayed = control;
+    }
+}
+function lerpControl(control, time){
+    if (allowDelay){
+        var t = 1 - Math.exp(-exposed.deltaTime / 1000 / time);
+        control_lerp = (1-t) * control_lerp + t * control;
+    }
+    else{
+        control_lerp = control;
+    }
+}
+function clamp(num, min, max){
+    if (min > max) return clamp(num, max, min);
+    if (num > max) return max;
+    if (num < min) return min;
+    return num;
 }
 
 var step=0;
 var input_fxy = document.getElementById('fxy');
 var div_intro = document.getElementById('intro');
 var exposed = {};
+
+function highlightBtn(btn){
+    $('.btn-group .btn-primary').removeClass('btn-primary');
+    $(btn).addClass('btn-primary');
+}
 
 $(function() {
     
@@ -173,13 +206,21 @@ $(function() {
         ball.uxy = uxy;
         var traceTimeElapsed = 0;
         var traceTime = 0.1;
+        ball.setTo = function(posX, posY){
+            this.xC = posX;
+            this.yC = posY;
+            this.xI = posX;
+            this.yI = posY;
+            control_delayed = 0;
+            control_lerp = 0;
+            while (control_delayed_timeout.length > 0){
+                clearTimeout(control_delayed_timeout.pop());
+            }
+        };
         ball.init = function(pos, fxy){
-            ball.xC = pos.x;
-            ball.yC = pos.y;
-            ball.xI = pos.x;
-            ball.yI = pos.y;
-            ball.fxy = fxy;
-        }
+            this.setTo(pos.x, pos.y);
+            this.fxy = fxy;
+        };
         ball.init(pos, fxy);
         ball.update = function(){
             //console.log(this.xC);
@@ -189,7 +230,8 @@ $(function() {
             var dt = Math.min(two.timeDelta / 1000, 0.5);
             var xC, yC;
             for (var i = 0; i < simSteps; i++){
-                var yC = this.yC + fxy_eval(this.fxy, this.xC, this.yC) * dt / simSteps;
+                this.a = fxy_eval(this.fxy, this.xC, this.yC, true);
+                var yC = this.yC + this.a * dt / simSteps;
                 var xC = this.xC + this.uxy(this.xC, this.yC) * dt / simSteps;
                 this.xC = xC;
                 this.yC = yC;
@@ -205,7 +247,7 @@ $(function() {
                 that = this;
                 window.setTimeout(function(){
                     if (Math.abs(that.xC) > 1 || Math.abs(that.yC) > 4){
-                        that.xC = that.xI; that.yC = that.yI;
+                        that.setTo(that.xI, that.yI);
                     }
                 }, 500);
             }
@@ -263,27 +305,18 @@ $(function() {
                 hideAll();
                 $('.visible2').css('display', '');
                 $('#step2').addClass('active');
-                alimit = 100;
-                adead = 0;
-                updateField(fxy);
                 step = 2;
                 break;
             case 3:
                 hideAll();
                 $('.visible3').css('display', '');
                 $('#step3').addClass('active');
-                alimit = 100;
-                adead = 0;
-                updateField(fxy);
                 step = 3;
                 break;
             case 4:
                 hideAll();
                 $('.visible4').css('display', '');
                 $('#step4').addClass('active');
-                adead = 0;
-                alimit = 0.1;
-                updateField(fxy);
                 step = 4;
                 break;
         }
@@ -295,7 +328,7 @@ $(function() {
             fxy = new Function ('x', 'u', str);
             updateField(fxy);
             rigid.fxy = fxy;
-            input_fxy.innerHTML = str;
+            input_fxy.value = str;
         }
         catch(e){
             console.log(e);
@@ -384,6 +417,8 @@ $(function() {
             arrowU.move(fu * vectorScale, -90*deg2rad);
             arrowXU.move(Math.sqrt(fu*fu+fx*fx) * vectorScale, Math.atan2(-fu, fx));
         }
+        control_delayed = 0;
+        control_lerp = 0;
     }
     updateField(fxy);
     rigid = addRigidbody(v2(0, 0.5), fxy);
@@ -392,18 +427,16 @@ $(function() {
     var chartCenterX = W - chartW/2-chartPadding;
     var chartCenterY = chartW/2+chartPadding
     chartRoot.translation = v2(chartCenterX, chartCenterY);
+    handleMouse = function(e){
+        relPos = v2((e.offsetX - chartCenterX) / (chartW/2), -(e.offsetY - chartCenterY) / (chartW/2));
+        if (Math.abs(relPos.x) < 1 && Math.abs(relPos.y) < 1){
+            control_delayed = 0;
+            control_lerp = 0;
+            rigid.setTo(relPos.x, relPos.y);
+        }
+    }
     todo.add(()=>{
-        $('canvas').bind('click', function(e){
-            relPos = v2((e.offsetX - chartCenterX) / (chartW/2), -(e.offsetY - chartCenterY) / (chartW/2));
-            if (Math.abs(relPos.x) < 1 && Math.abs(relPos.y) < 1){
-                rigid.init(relPos, fxy);
-            }
-        }).bind('touchdown', function(e){
-            relPos = v2((e.offsetX - chartCenterX) / (chartW/2), -(e.offsetY - chartCenterY) / (chartW/2));
-            if (Math.abs(relPos.x) < 1 && Math.abs(relPos.y) < 1){
-                rigid.init(relPos, fxy);
-            }
-        });
+        $('canvas').bind('click', handleMouse).bind('touchdown', handleMouse);
     });
     
     //ground
@@ -432,7 +465,7 @@ $(function() {
         var rigidX = rigid.translation.x;
         this.translation = v2(rigidX, 0);
         var arrowXLen = uxy(rigidXC, rigidYC) * vectorScale * 2;
-        var arrowULen = fxy_eval(fxy, rigidXC, rigidYC) * vectorScale * 2;
+        var arrowULen = rigid.a * vectorScale * 2;
         this.arrowX.move(arrowXLen, 0);
         this.arrowU.move(arrowULen, 0);
         this.labelX.translation = v2(arrowXLen, -10);
@@ -449,6 +482,8 @@ $(function() {
     two.update();
     todo.doAll();
     two.bind('update', function() {
+        
+        exposed.deltaTime = two.timeDelta;
         
         for (var i = 0; i < updateList.length; i++){
             var item = updateList[i];

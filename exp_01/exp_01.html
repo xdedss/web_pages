@@ -80,7 +80,7 @@
             <a href="#" onclick="exposed.gotoStep(0)">前言</a>
           </li>
           <li class="step-item" id="step1">
-            <a href="#" onclick="exposed.gotoStep(1)">自由运动</a>
+            <a href="#" onclick="exposed.gotoStep(1)">匀速运动</a>
           </li>
           <li class="step-item active" id="step2">
             <a href="#" onclick="exposed.gotoStep(2)">有外力的典型情况</a>
@@ -89,11 +89,17 @@
             <a href="#" onclick="exposed.gotoStep(3)">自定义控制算法</a>
           </li>
           <li class="step-item" id="step4">
-            <a href="#" onclick="exposed.gotoStep(4)">限制条件下的控制</a>
+            <a href="#" onclick="exposed.gotoStep(4)">非理想条件下的控制</a>
           </li>
         </ul>
         <div class="visible0">
             <p>本页面含有交互动画，建议使用chrome或者edge浏览器，不兼容ie浏览器。本页以动画交互为主，解说较少，建议搭配b站专栏食用。</p>
+            <ul>
+              这个动画演示可以：
+              <li>模拟一维的刚体运动</li>
+              <li>模拟加速度仅为位移和速度的函数的线性或非线性系统</li>
+              <li>模拟带有时滞的系统</li>
+            </ul>
             <p>点击上面的进度条进入下一步。</p>
             
         </div>
@@ -115,36 +121,38 @@
         </div>
         <div class="visible2 visible3">
             <div class="btn-group btn-group-block">
-                <button onclick="exposed.changeFunction(presets.free)" class="btn tooltip tooltip-bottom" data-tooltip="无外力">自由运动</button>
-                <button onclick="exposed.changeFunction(presets.constant)" class="btn tooltip tooltip-bottom" data-tooltip="向右的恒力">恒力</button>
-                <button onclick="exposed.changeFunction(presets.spring)" class="btn tooltip tooltip-bottom" data-tooltip="回复力的大小与位移成正比">弹簧</button>
-                <button onclick="exposed.changeFunction(presets.nspring)" class="btn tooltip tooltip-bottom" data-tooltip="回复力变成排斥力，离得越远排斥力越大">反向弹簧</button>
-                <button onclick="exposed.changeFunction(presets.damping)" class="btn tooltip tooltip-bottom" data-tooltip="速度与阻力成正比">纯阻尼</button>
-                <button onclick="exposed.changeFunction(presets.ndamping)" class="btn tooltip tooltip-bottom" data-tooltip="阻力变成推力，速度越大加速度越大">反向阻尼</button>
-                <button onclick="exposed.changeFunction(presets.pd1)" class="btn tooltip tooltip-bottom" data-tooltip="kp=1,kd=1 等于弹簧加阻尼">PD①</button>
-                <button onclick="exposed.changeFunction(presets.pd2)" class="btn tooltip tooltip-bottom" data-tooltip="kp=2,kd=0.5 等于弹簧加阻尼">PD②</button>
-                <button onclick="exposed.changeFunction(presets.pd3)" class="btn tooltip tooltip-bottom" data-tooltip="kp=0.5,kd=2 等于弹簧加阻尼">PD③</button>
-                <button onclick="exposed.changeFunction(presets.comb5)" class="btn tooltip tooltip-bottom" data-tooltip="普通的组合（产生稳态误差）">恒力+PD①</button>
-                <button onclick="exposed.changeFunction(presets.comb1)" class="btn tooltip tooltip-bottom" data-tooltip="奇怪的组合">弹簧+反向阻尼</button>
-                <button onclick="exposed.changeFunction(presets.comb2)" class="btn tooltip tooltip-bottom" data-tooltip="奇怪的组合">反向弹簧+阻尼</button>
-                <button onclick="exposed.changeFunction(presets.comb3)" class="btn tooltip tooltip-bottom" data-tooltip="普通的组合">恒力+阻尼</button>
-                <button onclick="exposed.changeFunction(presets.comb4)" class="btn tooltip tooltip-bottom" data-tooltip="普通的组合">恒力+弹簧</button>
-                <button onclick="exposed.changeFunction(presets.friction)" class="btn tooltip tooltip-bottom" data-tooltip="大小不变，方向与速度相反">摩擦力</button>
-                <button onclick="exposed.changeFunction(presets.nfriction)" class="btn tooltip tooltip-bottom" data-tooltip="大小不变，方向与速度相同">反向摩擦力</button>
-                <button onclick="exposed.changeFunction(presets.nl1)" class="btn tooltip tooltip-bottom" data-tooltip="x大于0时输出-1，小于0时输出1">理想继电器</button>
-                <button onclick="exposed.changeFunction(presets.nl2)" class="btn tooltip tooltip-bottom" data-tooltip="力和cos5πx成正比">超级非线性</button>
+                <button onclick="exposed.changeFunction(presets.free);highlightBtn(event.target);" class="btn tooltip tooltip-bottom" data-tooltip="无外力">自由运动</button>
+                <button onclick="exposed.changeFunction(presets.constant);highlightBtn(event.target);" class="btn tooltip tooltip-bottom" data-tooltip="向右的恒力">恒力</button>
+                <button onclick="exposed.changeFunction(presets.spring);highlightBtn(event.target);" class="btn tooltip tooltip-bottom" data-tooltip="回复力的大小与位移成正比">弹簧</button>
+                <button onclick="exposed.changeFunction(presets.nspring);highlightBtn(event.target);" class="btn tooltip tooltip-bottom" data-tooltip="回复力变成排斥力，离得越远排斥力越大">反向弹簧</button>
+                <button onclick="exposed.changeFunction(presets.damping);highlightBtn(event.target);" class="btn tooltip tooltip-bottom" data-tooltip="速度与阻力成正比">纯阻尼</button>
+                <button onclick="exposed.changeFunction(presets.ndamping);highlightBtn(event.target);" class="btn tooltip tooltip-bottom" data-tooltip="阻力变成推力，速度越大加速度越大">反向阻尼</button>
+                <button onclick="exposed.changeFunction(presets.pd1);highlightBtn(event.target);" class="btn tooltip tooltip-bottom" data-tooltip="kp=1,kd=1 等于弹簧加阻尼">PD①</button>
+                <button onclick="exposed.changeFunction(presets.pd2);highlightBtn(event.target);" class="btn tooltip tooltip-bottom" data-tooltip="kp=2,kd=0.5 等于弹簧加阻尼">PD②</button>
+                <button onclick="exposed.changeFunction(presets.pd3);highlightBtn(event.target);" class="btn tooltip tooltip-bottom" data-tooltip="kp=0.5,kd=2 等于弹簧加阻尼">PD③</button>
+                <button onclick="exposed.changeFunction(presets.comb5);highlightBtn(event.target);" class="btn tooltip tooltip-bottom" data-tooltip="普通的组合（产生稳态误差）">恒力+PD①</button>
+                <button onclick="exposed.changeFunction(presets.comb1);highlightBtn(event.target);" class="btn tooltip tooltip-bottom" data-tooltip="奇怪的组合">弹簧+反向阻尼</button>
+                <button onclick="exposed.changeFunction(presets.comb2);highlightBtn(event.target);" class="btn tooltip tooltip-bottom" data-tooltip="奇怪的组合">反向弹簧+阻尼</button>
+                <button onclick="exposed.changeFunction(presets.comb3);highlightBtn(event.target);" class="btn tooltip tooltip-bottom" data-tooltip="普通的组合">恒力+阻尼</button>
+                <button onclick="exposed.changeFunction(presets.comb4);highlightBtn(event.target);" class="btn tooltip tooltip-bottom" data-tooltip="普通的组合">恒力+弹簧</button>
+                <button onclick="exposed.changeFunction(presets.friction);highlightBtn(event.target);" class="btn tooltip tooltip-bottom" data-tooltip="大小不变，方向与速度相反">摩擦力</button>
+                <button onclick="exposed.changeFunction(presets.nfriction);highlightBtn(event.target);" class="btn tooltip tooltip-bottom" data-tooltip="大小不变，方向与速度相同">反向摩擦力</button>
+                <button onclick="exposed.changeFunction(presets.nl1);highlightBtn(event.target);" class="btn tooltip tooltip-bottom" data-tooltip="x大于0时输出-1，小于0时输出1">理想继电器</button>
+                <button onclick="exposed.changeFunction(presets.nl2);highlightBtn(event.target);" class="btn tooltip tooltip-bottom" data-tooltip="力和cos5πx成正比">超级非线性</button>
             </div>
         </div>
         <div class="visible4">
             <p>可能你已经找到了一个比较好的算法能让滑块快速稳定到原点，然而这只是理想情况下的结果，
-                现实中的控制系统有很多的限制。比如说发动机的推力有限，加速度的大小不可能太大（饱和非线性），或者发动机推力有下限，不能精细调节。
-                试一下在限制下同样的算法是否还能正常运行。下面将加速度的大小限制在0.2~0.5以内。</p>
+                现实中的控制系统有很多的限制。比如说发动机的推力有限，加速度的大小不可能太大（饱和非线性），
+                或者发动机推力有下限，不能精细调节，或者发动机调整推力是有延迟的，发出指令后过一段时间才有响应。
+                试一下在限制下同样的算法是否还能正常运行。</p>
         </div>
         <div class="visible4">
             <div class="btn-group btn-group-block">
-                <button onclick="exposed.changeFunction(presets.pd1)" class="btn tooltip tooltip-bottom" data-tooltip="kp=1,kd=1">PD①</button>
-                <button onclick="exposed.changeFunction(presets.pd2)" class="btn tooltip tooltip-bottom" data-tooltip="kp=2,kd=0.5">PD②</button>
-                <button onclick="exposed.changeFunction(presets.pd3)" class="btn tooltip tooltip-bottom" data-tooltip="kp=0.5,kd=2">PD③</button>
+                <button onclick="exposed.changeFunction(presets.pd1);highlightBtn(event.target);" class="btn tooltip tooltip-bottom" data-tooltip="kp=1,kd=1">PD①理想</button>
+                <button onclick="exposed.changeFunction(presets.pd1_sat);highlightBtn(event.target);" class="btn tooltip tooltip-bottom" data-tooltip="kp=1,kd=1，限制加速度大小不超过0.2">PD①饱和</button>
+                <button onclick="exposed.changeFunction(presets.pd1_d1);highlightBtn(event.target);" class="btn tooltip tooltip-bottom" data-tooltip="kp=1,kd=1，纯滞后0.6秒">PD①纯滞后</button>
+                <button onclick="exposed.changeFunction(presets.pd1_d2);highlightBtn(event.target);" class="btn tooltip tooltip-bottom" data-tooltip="kp=1,kd=1，容量滞后，时间常数为3">PD①容量滞后</button>
             </div>
         </div>
         <div class="visible2">
