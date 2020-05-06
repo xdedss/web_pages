@@ -72,8 +72,7 @@
         <a target="_blank" href="https://gitee.com/xdedss/web_pages" class="btn btn-link">Source</a>
       </section>
     </header>
-    <div id="cover" class="visible0"></div>
-    <div id="two" class="visible1 visible2 visible3 visible4"></div>
+    <div id="two"></div>
     <div id="intro">
         <h2>相平面动画演示</h2>
         <ul class="step">
@@ -124,9 +123,9 @@
                 <button onclick="exposed.changeFunction(presets.ndamping)" class="btn tooltip tooltip-bottom" data-tooltip="阻力变成推力，速度越大加速度越大">反向阻尼</button>
                 <button onclick="exposed.changeFunction(presets.friction)" class="btn tooltip tooltip-bottom" data-tooltip="大小不变，方向与速度相反">摩擦力</button>
                 <button onclick="exposed.changeFunction(presets.nfriction)" class="btn tooltip tooltip-bottom" data-tooltip="大小不变，方向与速度相同">反向摩擦力</button>
-                <button onclick="exposed.changeFunction(presets.pd1)" class="btn tooltip tooltip-bottom" data-tooltip="PD算法 kp=1,kd=1">PD①</button>
-                <button onclick="exposed.changeFunction(presets.pd2)" class="btn tooltip tooltip-bottom" data-tooltip="PD算法 kp=2,kd=0.5">PD②</button>
-                <button onclick="exposed.changeFunction(presets.pd3)" class="btn tooltip tooltip-bottom" data-tooltip="PD算法 kp=0.5,kd=2">PD③</button>
+                <button onclick="exposed.changeFunction(presets.pd1)" class="btn tooltip tooltip-bottom" data-tooltip="kp=1,kd=1 等于弹簧加阻尼">PD①</button>
+                <button onclick="exposed.changeFunction(presets.pd2)" class="btn tooltip tooltip-bottom" data-tooltip="kp=2,kd=0.5 等于弹簧加阻尼">PD②</button>
+                <button onclick="exposed.changeFunction(presets.pd3)" class="btn tooltip tooltip-bottom" data-tooltip="kp=0.5,kd=2 等于弹簧加阻尼">PD③</button>
                 <button onclick="exposed.changeFunction(presets.comb1)" class="btn tooltip tooltip-bottom" data-tooltip="奇怪的组合">弹簧+反向阻尼</button>
                 <button onclick="exposed.changeFunction(presets.comb2)" class="btn tooltip tooltip-bottom" data-tooltip="奇怪的组合">反向弹簧+阻尼</button>
                 <button onclick="exposed.changeFunction(presets.comb3)" class="btn tooltip tooltip-bottom" data-tooltip="普通的组合">恒力+阻尼</button>

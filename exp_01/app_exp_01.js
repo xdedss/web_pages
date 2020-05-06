@@ -9,14 +9,14 @@ presets = {
     ndamping: 'return u;',
     friction: 'return -Math.sign(u) * 0.4;',
     nfriction: 'return Math.sign(u) * 0.4;',
-    pd1: 'return (-1) * x + (-1) * u;',
-    pd2: 'return (-2) * x + (-0.5) * u;',
-    pd3: 'return (-0.5) * x + (-2) * u;',
-    comb1: 'return (-1) * x + (0.5) * u;',
-    comb2: 'return (1) * x + (-0.5) * u;',
+    pd1: 'return -1 * x - 1 * u;',
+    pd2: 'return -2 * x - 0.5 * u;',
+    pd3: 'return -0.5 * x - 2 * u;',
+    comb1: 'return -1 * x + 0.5 * u;',
+    comb2: 'return 1 * x - 0.5 * u;',
     comb3: 'return -u + 0.5',
     comb4: 'return -x + 0.5',
-    comb5: 'return (-1) * x + (-1) * u + 0.3;',
+    comb5: 'return -1 * x - 1 * u + 0.3;',
 }
 
 
