@@ -17,14 +17,19 @@ presets = {
     comb3: 'return -u + 0.5',
     comb4: 'return -x + 0.5',
     comb5: 'return -1 * x - 1 * u + 0.3;',
+    nl1: 'return -Math.sign(x);',
+    nl2: 'return Math.cos(5 * 3.1415926 * x);',
 }
 
 
-
-function fxy_eval(f, x, y, lim){
+var adead = 0;
+var alimit = 100;
+function fxy_eval(f, x, y){
     var res = f(x, y);
-    if (res > lim) return lim;
-    if (res < -lim) return -lim;
+    if (res > alimit) return alimit;
+    if (res < -alimit) return -alimit;
+    if (res < adead && res > 0) return adead;
+    if (res > -adead && res < 0) return -adead;
     return res;
 }
 
@@ -184,12 +189,12 @@ $(function() {
             var dt = Math.min(two.timeDelta / 1000, 0.5);
             var xC, yC;
             for (var i = 0; i < simSteps; i++){
-                var yC = this.yC + fxy_eval(this.fxy, this.xC, this.yC, alimit) * dt / simSteps;
+                var yC = this.yC + fxy_eval(this.fxy, this.xC, this.yC) * dt / simSteps;
                 var xC = this.xC + this.uxy(this.xC, this.yC) * dt / simSteps;
                 this.xC = xC;
                 this.yC = yC;
             }
-            this.yC = Math.abs(yC) < 1.0e-3 ? 0 : yC;//friction
+            this.yC = Math.abs(yC) < 1.0e-3 ? (fxy_eval(this.fxy, xC, 0) == 0 ? 0 : yC) : yC;//friction
             this.translation = v2(xC * chartW / 2, -yC * chartW / 2);
             traceTimeElapsed += dt;
             if (traceTimeElapsed > traceTime){
@@ -259,6 +264,7 @@ $(function() {
                 $('.visible2').css('display', '');
                 $('#step2').addClass('active');
                 alimit = 100;
+                adead = 0;
                 updateField(fxy);
                 step = 2;
                 break;
@@ -267,6 +273,7 @@ $(function() {
                 $('.visible3').css('display', '');
                 $('#step3').addClass('active');
                 alimit = 100;
+                adead = 0;
                 updateField(fxy);
                 step = 3;
                 break;
@@ -274,6 +281,7 @@ $(function() {
                 hideAll();
                 $('.visible4').css('display', '');
                 $('#step4').addClass('active');
+                adead = 0;
                 alimit = 0.1;
                 updateField(fxy);
                 step = 4;
@@ -311,9 +319,8 @@ $(function() {
     var colorXY = '#22a';
     var divideCount = 10;
     var vectorScale = 30;
-    var simSteps = 2;
+    var simSteps = 4;
     var groundH = 10;
-    var alimit = 100;
     
     var mouse = v2(0,0);
     // chart
@@ -372,7 +379,7 @@ $(function() {
         for(var i = 0; i < arrowsU.length; i++){
             var arrowU = arrowsU[i];
             var arrowXU = arrowsXU[i];
-            var fu = fxy_eval(fxy, arrowU.xC, arrowU.yC, alimit);
+            var fu = fxy_eval(fxy, arrowU.xC, arrowU.yC);
             var fx = uxy(arrowU.xC, arrowU.yC);
             arrowU.move(fu * vectorScale, -90*deg2rad);
             arrowXU.move(Math.sqrt(fu*fu+fx*fx) * vectorScale, Math.atan2(-fu, fx));
@@ -425,7 +432,7 @@ $(function() {
         var rigidX = rigid.translation.x;
         this.translation = v2(rigidX, 0);
         var arrowXLen = uxy(rigidXC, rigidYC) * vectorScale * 2;
-        var arrowULen = fxy_eval(fxy, rigidXC, rigidYC, alimit) * vectorScale * 2;
+        var arrowULen = fxy_eval(fxy, rigidXC, rigidYC) * vectorScale * 2;
         this.arrowX.move(arrowXLen, 0);
         this.arrowU.move(arrowULen, 0);
         this.labelX.translation = v2(arrowXLen, -10);

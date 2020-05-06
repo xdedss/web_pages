@@ -121,28 +121,30 @@
                 <button onclick="exposed.changeFunction(presets.nspring)" class="btn tooltip tooltip-bottom" data-tooltip="回复力变成排斥力，离得越远排斥力越大">反向弹簧</button>
                 <button onclick="exposed.changeFunction(presets.damping)" class="btn tooltip tooltip-bottom" data-tooltip="速度与阻力成正比">纯阻尼</button>
                 <button onclick="exposed.changeFunction(presets.ndamping)" class="btn tooltip tooltip-bottom" data-tooltip="阻力变成推力，速度越大加速度越大">反向阻尼</button>
-                <button onclick="exposed.changeFunction(presets.friction)" class="btn tooltip tooltip-bottom" data-tooltip="大小不变，方向与速度相反">摩擦力</button>
-                <button onclick="exposed.changeFunction(presets.nfriction)" class="btn tooltip tooltip-bottom" data-tooltip="大小不变，方向与速度相同">反向摩擦力</button>
                 <button onclick="exposed.changeFunction(presets.pd1)" class="btn tooltip tooltip-bottom" data-tooltip="kp=1,kd=1 等于弹簧加阻尼">PD①</button>
                 <button onclick="exposed.changeFunction(presets.pd2)" class="btn tooltip tooltip-bottom" data-tooltip="kp=2,kd=0.5 等于弹簧加阻尼">PD②</button>
                 <button onclick="exposed.changeFunction(presets.pd3)" class="btn tooltip tooltip-bottom" data-tooltip="kp=0.5,kd=2 等于弹簧加阻尼">PD③</button>
+                <button onclick="exposed.changeFunction(presets.comb5)" class="btn tooltip tooltip-bottom" data-tooltip="普通的组合（产生稳态误差）">恒力+PD①</button>
                 <button onclick="exposed.changeFunction(presets.comb1)" class="btn tooltip tooltip-bottom" data-tooltip="奇怪的组合">弹簧+反向阻尼</button>
                 <button onclick="exposed.changeFunction(presets.comb2)" class="btn tooltip tooltip-bottom" data-tooltip="奇怪的组合">反向弹簧+阻尼</button>
                 <button onclick="exposed.changeFunction(presets.comb3)" class="btn tooltip tooltip-bottom" data-tooltip="普通的组合">恒力+阻尼</button>
                 <button onclick="exposed.changeFunction(presets.comb4)" class="btn tooltip tooltip-bottom" data-tooltip="普通的组合">恒力+弹簧</button>
-                <button onclick="exposed.changeFunction(presets.comb5)" class="btn tooltip tooltip-bottom" data-tooltip="普通的组合（产生稳态误差）">恒力+PD①</button>
+                <button onclick="exposed.changeFunction(presets.friction)" class="btn tooltip tooltip-bottom" data-tooltip="大小不变，方向与速度相反">摩擦力</button>
+                <button onclick="exposed.changeFunction(presets.nfriction)" class="btn tooltip tooltip-bottom" data-tooltip="大小不变，方向与速度相同">反向摩擦力</button>
+                <button onclick="exposed.changeFunction(presets.nl1)" class="btn tooltip tooltip-bottom" data-tooltip="x大于0时输出-1，小于0时输出1">理想继电器</button>
+                <button onclick="exposed.changeFunction(presets.nl2)" class="btn tooltip tooltip-bottom" data-tooltip="力和cos5πx成正比">超级非线性</button>
             </div>
         </div>
         <div class="visible4">
             <p>可能你已经找到了一个比较好的算法能让滑块快速稳定到原点，然而这只是理想情况下的结果，
-                现实中的控制系统有很多的限制。比如说发动机的推力有限，加速度的大小不可能太大。
-                试一下在限制下同样的算法是否还能正常运行。下面将加速度的大小限制在0.1以内。</p>
+                现实中的控制系统有很多的限制。比如说发动机的推力有限，加速度的大小不可能太大（饱和非线性），或者发动机推力有下限，不能精细调节。
+                试一下在限制下同样的算法是否还能正常运行。下面将加速度的大小限制在0.2~0.5以内。</p>
         </div>
         <div class="visible4">
             <div class="btn-group btn-group-block">
-                <button onclick="exposed.changeFunction(presets.pd1)" class="btn tooltip tooltip-bottom" data-tooltip="PD算法 kp=1,kd=1">PD①</button>
-                <button onclick="exposed.changeFunction(presets.pd2)" class="btn tooltip tooltip-bottom" data-tooltip="PD算法 kp=2,kd=0.5">PD②</button>
-                <button onclick="exposed.changeFunction(presets.pd3)" class="btn tooltip tooltip-bottom" data-tooltip="PD算法 kp=0.5,kd=2">PD③</button>
+                <button onclick="exposed.changeFunction(presets.pd1)" class="btn tooltip tooltip-bottom" data-tooltip="kp=1,kd=1">PD①</button>
+                <button onclick="exposed.changeFunction(presets.pd2)" class="btn tooltip tooltip-bottom" data-tooltip="kp=2,kd=0.5">PD②</button>
+                <button onclick="exposed.changeFunction(presets.pd3)" class="btn tooltip tooltip-bottom" data-tooltip="kp=0.5,kd=2">PD③</button>
             </div>
         </div>
         <div class="visible2">
