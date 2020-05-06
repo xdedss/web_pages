@@ -223,8 +223,9 @@ $(function() {
             var t = this.timeElapsed / this.life;
             this.opacity = (1 - t) * this.maxOpacity;
             if (t > 1){
+                //this.opacity = 1;
                 removeList.push(this);
-                two.remove(this);
+                chartRoot.remove(this);
             }
         }
         updateList.push(ball);
