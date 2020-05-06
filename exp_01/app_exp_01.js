@@ -16,7 +16,7 @@ presets = {
     comb2: 'return 1 * x - 0.5 * u;',
     comb3: 'return -u + 0.5',
     comb4: 'return -x + 0.5',
-    comb5: 'return -1 * x - 1 * u + 0.3;',
+    comb5: 'return 0.3 - 1 * x - 1 * u;',
     nl1: 'return -Math.sign(x);',
     nl2: 'return Math.cos(5 * 3.1415926 * x);',
 }
