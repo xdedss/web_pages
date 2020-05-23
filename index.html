@@ -2,17 +2,79 @@
 <html>
     <head>
         <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
         <link rel="stylesheet" href="common/spectre.min.css">
         <link rel="stylesheet" href="common/spectre-exp.min.css">
         <link rel="stylesheet" href="common/spectre-icons.min.css">
+        
+        <script src="https://apps.bdimg.com/libs/jquery/2.1.4/jquery.min.js"></script>
+        <style>
+            body{
+                text-align: center;
+                background: #eef0ff;
+            }
+            
+            #center{
+                width: 50%;
+                min-width: 250px;
+                border-radius: 10px;
+                padding: 10px;
+                margin: 10px;
+                display: inline-block;
+                background: rgba(255, 255, 255, 0.8);
+                text-align: left;
+            }
+            
+            #footer a{
+                color: #888;
+            }
+        </style>
     </head>
     <body style="margin:10px">
-        <h1>web_pages</h1>
-
-        <ul class="list">
-            <li><a href="exp_01/exp_01.html">相平面演示</a></li>
-            <li><a href="exp_02/exp_02.html">数字电路工具</a></li>
-        </ul>
+        <div id="center">
+            <h1>前端实验室</h1>
+            
+            <p>托管在gitee上，放一些实验性质的前端项目</p>
+            
+            <div style="">
+                <div class="accordion">
+                    <input id="accordion-1" type="checkbox" name="accordion-checkbox" hidden="" checked="">
+                    <label class="accordion-header c-hand" for="accordion-1">
+                        <i class="icon icon-arrow-right mr-1"></i>
+                        学习
+                    </label>
+                    <div class="accordion-body">
+                        <ul class="menu menu-nav">
+                            <li class="menu-item"><a href="exp_01/exp_01.html">相平面演示</a></li>
+                            <li class="menu-item"><a href="exp_02/exp_02.html">数字电路工具</a></li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="accordion">
+                    <input id="accordion-2" type="checkbox" name="accordion-checkbox" hidden="" checked="false">
+                    <label class="accordion-header c-hand" for="accordion-2">
+                        <i class="icon icon-arrow-right mr-1"></i>
+                        游戏
+                    </label>
+                    <div class="accordion-body">
+                        <ul class="menu menu-nav">
+                            <li class="menu-item"><a href="#">nothing</a></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            <div class="divider"></div>
+            <div class="container" id="footer">
+                <a href="https://opensource.org/licenses/MIT" target="_blank">
+                    <img src="https://img.shields.io/badge/License-MIT-yellow.svg" alt="License: MIT" style="max-width:100%;vertical-align:middle;">
+                </a>
+                <br>
+                <a href="https://github.com/xdedss" target="_blank">GitHub</a> · 
+                <a href="https://space.bilibili.com/10703272" target="_blank">Bilibili</a> · 
+                <a href="https://gitee.com/xdedss/web_pages" target="_blank">Source</a>
+                
+            </div>
+        </div>
     </body>
 </html>
 

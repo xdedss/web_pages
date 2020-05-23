@@ -135,7 +135,7 @@ $(function() {
         var order = Array.from(getIDSet(logic)).sort().reverse();
         var table = logicParser.evaluateTable(logic, order);
         //console.log(table);
-        var cover = getCover(table);
+        var cover = getCover(table).reverse();
         var format = tableFormat[order.length];
         var head = format.head;
         for (var i = 0; i < order.length; i++){
