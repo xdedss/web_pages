@@ -83,7 +83,7 @@ $(function() {
         head : '$0\\',
         xnum : 0,
         ynum : 1,
-        x : [1],
+        x : [0],
         y : [0, 1],
     },
     {
@@ -134,6 +134,7 @@ $(function() {
     function generateTable(logic){
         var order = Array.from(getIDSet(logic)).sort().reverse();
         var table = logicParser.evaluateTable(logic, order);
+        //console.log(table);
         var cover = getCover(table);
         var format = tableFormat[order.length];
         var head = format.head;
@@ -180,7 +181,7 @@ $(function() {
                 (s=>(format.x.forEach(x=>{
                     var index = y*format.x.length+x;
                     var truth = table[index];
-                    //var circles = truth ? [['100, 255, 255', '']] : [];
+                    //console.log(index);
                     var circles = circlesArr[index];
                     s+="<td id=\"slot"+(index)+"\">"+"<span>"+(truth ? 1 : 0)+"</span>"+
                     (s=>(circles.forEach(circle=>s+='<div cover="'+circle[2]+'" class="one-circle '+circle[1]+'" style="border-color:rgb('+circle[0]+');background-color:rgba('+circle[0]+',0.2);"></div>'),s))('')+
