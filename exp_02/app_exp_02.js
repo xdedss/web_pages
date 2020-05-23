@@ -129,6 +129,7 @@ $(function() {
         8: '255, 200, 80',
         16: '255, 120, 120',
         32: '255, 120, 255',
+        64: '120, 120, 255',
     }
     function generateTable(logic){
         var order = Array.from(getIDSet(logic)).sort().reverse();
@@ -189,7 +190,7 @@ $(function() {
         </table>
     
         `,`
-        =${simplified.join('+')}
+        =${simplified.length == 0 ? 0 : simplified.join('+')}
     `];
     }
     
@@ -244,6 +245,7 @@ $(function() {
                     break;
             }
         }
+        if (res == '') res = 1;
         return res;
     }
     
@@ -328,7 +330,7 @@ $(function() {
                 marks.marks[id] = 1;
             }
         }
-        for (var k = 1; k < varNum; k++){
+        for (var k = 1; k <= varNum; k++){
             var set = new Set();
             var prev = Array.from(sets[k-1]);
             for (var i = 0; i < prev.length - 1; i++){
@@ -343,7 +345,7 @@ $(function() {
             sets.push(set);
         }
         var res = [];
-        for (var k = 0; k < varNum; k++){
+        for (var k = 0; k <= varNum; k++){
             var setArr = Array.from(sets[k]);
             setArr.forEach(id=>{
                 if (marks.getMin(id) > 1){
@@ -354,7 +356,6 @@ $(function() {
             });
             res = res.concat(Array.from(sets[k]));
         }
-        
         return res;
     }
     
