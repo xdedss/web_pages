@@ -5,6 +5,7 @@ $(function(){
     //var a = document.createElement('a');
     var fname = '*';
     var needRerender = true;
+    var ds = 1;
 
     $('#spacing').change(function(e) {
         var v = $('#spacing')[0].value;
@@ -19,6 +20,13 @@ $(function(){
         $('#scale-label').html(v.toFixed(2));
         $('#pre').css('transform', `scale(${v}) translate(${-100*(1-v)/v/2}%, ${-100*(1-v)/v/2}%)`);
         resetDownload();
+    });
+    
+    $('#downsampling').change(function(e) {
+        var v = $('#downsampling')[0].value;
+        $('#downsampling-label').html(v);
+        ds = Number(v);
+        redraw();
     });
 
     $('#charset').keyup(function(e){
@@ -94,8 +102,8 @@ $(function(){
 
     function processImage(img){
         var scale = clamp(200.0 / img.width, 0, 1);
-        var resizedW = Math.floor(img.width * scale);
-        var resizedH = Math.floor(img.height * scale);
+        var resizedW = Math.floor(img.width * scale / ds);
+        var resizedH = Math.floor(img.height * scale / ds);
         
         var canvas = $('#canvas')[0];
         canvas.width = resizedW;
