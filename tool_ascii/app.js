@@ -6,6 +6,7 @@ $(function(){
     var fname = '*';
     var needRerender = true;
     var ds = 1;
+    var aspect = 1;
 
     $('#spacing').change(function(e) {
         var v = $('#spacing')[0].value;
@@ -23,17 +24,31 @@ $(function(){
     });
     
     $('#downsampling').change(function(e) {
-        var v = $('#downsampling')[0].value;
-        $('#downsampling-label').html(v);
-        ds = Number(v);
+        var v = Number($('#downsampling')[0].value) / 100.0;
+        $('#downsampling-label').html(v.toFixed(2) + 'x');
+        ds = v;
         redraw();
     });
-
-    $('#charset').keyup(function(e){
-        redraw();
-    }).change(function(e){
+    
+    $('#aspect').change(function(e) {
+        var v = Number($('#aspect')[0].value);
+        v = Math.pow(2, v / 100.0);
+        $('#aspect-label').html(v.toFixed(2));
+        aspect = v;
         redraw();
     });
+    
+    var lastCharset = '';
+    $('#charset').bind("input propertychange",function(e){
+        redraw();
+    });
+    window.setInterval(()=>{
+        var newCharset;
+        if ((newCharset = $('#charset').val()) != lastCharset){
+            lastCharset = newCharset;
+            redraw();
+        }
+    }, 500);
 
     $('#upload').change(function(e) {
         var file = $('#upload').val();
@@ -50,6 +65,22 @@ $(function(){
             e.preventDefault();
         }
         
+    });
+    
+    var copyBtn = new ClipboardJS('#btn-copy', {
+        text: function(trigger) {
+            return $('#pre').html();
+        }
+    });
+    copyBtn.on("success",function(e){
+        var o = $('#btn-copy').html();
+        $('#btn-copy').html('复制成功').addClass('disabled');
+        window.setTimeout(()=>$('#btn-copy').html(o).removeClass('disabled'), 500);
+    });
+    copyBtn.on("error",function(e){
+        var o = $('#btn-copy').html();
+        $('#btn-copy').html('复制失败').addClass('disabled');
+        window.setTimeout(()=>$('#btn-copy').html(o).removeClass('disabled'), 500);
     });
 
     function clamp(f, min, max){
@@ -86,6 +117,7 @@ $(function(){
     }
 
     function redraw(){
+        console.log('redraw');
         var file = $('#upload')[0].files[0];
         if (file == null) return;
         
@@ -102,8 +134,8 @@ $(function(){
 
     function processImage(img){
         var scale = clamp(200.0 / img.width, 0, 1);
-        var resizedW = Math.floor(img.width * scale / ds);
-        var resizedH = Math.floor(img.height * scale / ds);
+        var resizedW = Math.max(Math.floor(img.width * scale * aspect / ds), 1);
+        var resizedH = Math.max(Math.floor(img.height * scale / ds), 1);
         
         var canvas = $('#canvas')[0];
         canvas.width = resizedW;

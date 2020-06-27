@@ -12,6 +12,7 @@
 
         <script src="https://apps.bdimg.com/libs/jquery/2.1.4/jquery.min.js"></script>
         <script src="../common/html2canvas.min.js"></script>
+        <script src="../common/clipboard.min.js"></script>
         <script src="../common/rerolpxe-tenretni.js"></script>
         <style>
             * { 
@@ -77,23 +78,32 @@
             </canvas>
             <br>
             <div class="form-group" style="width:600px">
-                <label class="form-label">Charset:</label>
-                <input id="charset" class="form-input" type="text" placeholder="Charset" value="@B%8W#hwmQkbZ0LOCJUYXjtzcvn/|1{}[]?!+-~;:, ">
+                <label class="form-label">自定义字符集（颜色由深到浅）:</label>
+                <input id="charset" class="form-input" type="text" placeholder="Charset" value="W#QOUCJYt/]-;:. ">
+                <a onclick="$('#charset').val(this.innerHTML)" class="btn">W#QOUCJYt/]-;:. </a>
+                <a onclick="$('#charset').val(this.innerHTML)" class="btn">▉▊▋▍▎▏</a>
+                <a onclick="$('#charset').val(this.innerHTML)" class="btn">▇▆▅▃▂▁</a>
+                <a onclick="$('#charset').val(this.innerHTML)" class="btn">@B%8W#hwmQkbZ0LOCJUYXjtzcvn/|1{}[]?!+-~;:, </a>
             </div>
             <br>
             <div class="form-group" style="width:300px">
                 <label class="form-label">字距:</label><label id="spacing-label">4px</label>
-                <input id="spacing" class="slider" type="range" min="0" max="10" value="4" oninput="this.setAttribute('value', this.value);">
+                <input id="spacing" class="slider" type="range" min="-2" max="10" value="4" oninput="this.setAttribute('value', this.value);">
             </div>
             <div class="form-group" style="width:300px">
                 <label class="form-label">缩放:</label><label id="scale-label">1.00</label>
                 <input id="scale" class="slider" type="range" min="-100" max="100" value="0" oninput="this.setAttribute('value', this.value);">
             </div>
             <div class="form-group" style="width:300px">
-                <label class="form-label">降采样:</label><label id="downsampling-label">1</label>
-                <input id="downsampling" class="slider" type="range" min="1" max="8" value="1" oninput="this.setAttribute('value', this.value);">
+                <label class="form-label">降采样:</label><label id="downsampling-label">1.00x</label>
+                <input id="downsampling" class="slider" type="range" min="100" max="1000" value="1" oninput="this.setAttribute('value', this.value);">
+            </div>
+            <div class="form-group" style="width:300px">
+                <label class="form-label">长宽比:</label><label id="aspect-label">1</label>
+                <input id="aspect" class="slider" type="range" min="-100" max="100" value="0" oninput="this.setAttribute('value', this.value);">
             </div>
             <br>
+            <a id="btn-copy" class="btn btn-primary">复制文本</a>
             <a id="btn-download" class="btn btn-primary">渲染为图片</a>&nbsp;<label>(html2canvas)</label>
             <br>
             <pre id="pre">(╯‵□′)╯︵┻━┻</pre>
