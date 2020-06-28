@@ -2,4 +2,6 @@
 
 #### 介绍
 
-showcase
+一些纯前端项目
+
+gitee pages：http://xdedss.gitee.io/web_pages
