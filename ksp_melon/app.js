@@ -24,6 +24,7 @@ $(function(){
     
     var resourceUrls = bodies.map(name=>'images/'+name+'_crop.png');
     resourceUrls.push('images/bg_small.jpg');
+    resourceUrls.push('images/kspcrash.png');
     
     
     function sleep(ms) {
@@ -100,17 +101,7 @@ $(function(){
     
     // ball object
     function createBall(x, y, r, sprite){
-        var res = Bodies.circle(x, y, r, { 
-            render : { 
-//                sprite : { 
-//                    texture : 'images/'+sprite+'_crop.png',
-//                    xOffset : 0,
-//                    yOffset : 0,
-//                    xScale : 2*r / srcSize,
-//                    yScale : 2*r / srcSize,
-//                }
-            }
-        });
+        var res = Bodies.circle(x, y, r);
         setCircleSprite(res, r, sprite);
         return res;
     }
@@ -313,7 +304,10 @@ $(function(){
         // initial kerbin
         console.log(addBody(width / 2, height / 2, 9));
     }
+    $('#score').text('Loading...');
     window.preload(resourceUrls, status=>{
+        console.log(status);
+        
         restart();
     }, 10)
     
