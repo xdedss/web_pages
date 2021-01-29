@@ -22,6 +22,9 @@ $(function(){
     //var bodies = ['Gilly', 'Pol', 'Minmus', 'Bop', 'Ike', 'Dres', 'Mun', 'Eeloo', 'Moho', 'Vall', 'Duna', 'Laythe', 'Kerbin', 'Tylo', 'Eve', 'Jool', 'Kerbol']
     var bodies = ['Gilly', 'Minmus', 'Bop', 'Dres', 'Mun', 'Eeloo', 'Moho', 'Duna', 'Laythe', 'Kerbin', 'Eve', 'Jool', 'Kerbol']
     
+    var resourceUrls = bodies.map(name=>'images/'+name+'_crop.png');
+    resourceUrls.push('images/bg_small.jpg');
+    
     
     function sleep(ms) {
         return new Promise(resolve => setTimeout(resolve, ms));
@@ -69,7 +72,7 @@ $(function(){
             width : width,
             height : height,
             pixelRatio : 'auto',
-            background : 'url("images/bg.png")',
+            background : 'url("images/bg_small.jpg")',
             wireframe : debug,
             hasBounds : false,
             enabled : true,
@@ -158,7 +161,7 @@ $(function(){
         var cx = (ax + bx) / 2;
         var cy = (ay + by) / 2;
         ballA.ballSize = null;
-        ballB.ballSize = null;
+        ballB.ballSize = null;
         ballA.isStatic = true;
         ballB.isStatic = true;
         var frames = 8;
@@ -243,10 +246,11 @@ $(function(){
     }
     
     // ---------- init ------------
+        
     var sizeRecord;
     var nextIdx;
     var excessCount;
-    var isOver;
+    var isOver = true;
     var score;
     var preview, crash, gravityPoint, groundU, groundD, groundL, groundR;
     function restart(){
@@ -309,7 +313,10 @@ $(function(){
         // initial kerbin
         console.log(addBody(width / 2, height / 2, 9));
     }
-    restart();
+    window.preload(resourceUrls, status=>{
+        restart();
+    }, 10)
+    
     
     
     // collision listener
@@ -430,12 +437,15 @@ $(function(){
         $('canvas').css('margin-left', (-(width - $(window).width()) / 2) + 'px');
     }
     
+        
+    
     if (mobile){
         (async function(){
-            await sleep(500);
+            await sleep(100);
             alert('手机可能显示不全，建议用电脑打开');
         })()
     }
+    
     
     // update gravity center
 //    (async function(){
