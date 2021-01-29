@@ -1,0 +1,178 @@
+<!doctype html>
+<html>
+    <head>
+        <title>数字电路工具</title>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+
+        <link rel="icon" href="../favicon.ico">
+        <link rel="stylesheet" href="../common/spectre.min.css">
+        <link rel="stylesheet" href="../common/spectre-exp.min.css">
+        <link rel="stylesheet" href="../common/spectre-icons.min.css">
+
+        <script src="https://apps.bdimg.com/libs/jquery/2.1.4/jquery.min.js"></script>
+        <script src="../common/rmenu.js"></script>
+        <script src="../common/events.js"></script>
+        <script src="../common/rerolpxe-tenretni.js"></script>
+        <script src="../common/header.js"></script>
+        <script src="logic-parser.js"></script>
+        <style>
+            * { 
+            margin: 0; 
+            padding: 0;
+            }
+            body { 
+                overflow: overlay
+            }
+
+            #intro{
+                background: #fff;
+                -position: absolute;
+                width: auto;
+                padding: 10px;
+            }
+            
+            #table-out{
+                
+                display: inline-block;
+            }
+            
+            #table-div.ok{
+                width: min-content;
+                display: inline-block;
+                box-shadow: 2px 2px 8px #888888
+            }
+            #table-div.error{
+                border-color: red
+            }
+            #table-div table{
+                width: auto;
+            }
+            #table-div td{
+                position: relative;
+                border-left: .05rem solid #dadee4;
+                min-width: 50px;
+            }
+            #table-div td:nth-child(1){
+                border-left: none;
+                border-right: .1rem solid #dadee4;
+            }
+            #table-div tr:nth-child(1){
+                border-bottom: .1rem solid #dadee4;
+            }
+            
+            #table-div td span{
+                position: absolute;
+                top: 12px;
+                left: 0;
+                right: 0;
+                text-align: center;
+                z-index: 1;
+                pointer-events: none;
+            }
+            #table-div div.one-circle{
+                position: absolute;
+                top: 10%;
+                bottom: 10%;
+                left: 10%;
+                right: 10%;
+                border-radius: 10px;
+                border: solid;
+                border-width: 1px;
+                overflow: hidden;
+            }
+            #table-div div.one-circle.left{
+                left: 0;
+                border-left: none;
+                border-top-left-radius: 0;
+                border-bottom-left-radius: 0;
+            }
+            #table-div div.one-circle.right{
+                right: 0;
+                border-right: none;
+                border-top-right-radius: 0;
+                border-bottom-right-radius: 0;
+            }
+            #table-div div.one-circle.top{
+                top: 0;
+                border-top: none;
+                border-top-left-radius: 0;
+                border-top-right-radius: 0;
+            }
+            #table-div div.one-circle.bottom{
+                bottom: 0;
+                border-bottom: none;
+                border-bottom-left-radius: 0;
+                border-bottom-right-radius: 0;
+            }
+            #table-div div.one-circle.highlight{
+                border-width: 3px;
+            }
+            -#table-div div.one-circle.highlight:after{
+                position:absolute;
+                top: 0;
+                bottom: 0;
+                left: 0;
+                right: 0;
+                content:"";
+                background:rgba(255,255,255,0.5);
+            }
+            
+            #table-out div.res{
+                display: inline-block;
+                border-radius: 5px;
+                border: solid;
+                border-width: 1px;
+                border-color: #fff;
+            }
+            #table-out div.res.highlight{
+                border-color: #888;
+            }
+
+            .navbar{
+                background: #fff;
+                margin-left: 10px;
+            }
+
+            .navbar .text-center{
+                background: #fff;
+            }
+            
+            .visible{
+                padding: 10px;
+            }
+
+
+        </style>
+    </head>
+    <body>
+        <header class="navbar">
+        </header>
+        
+        
+        <div id="intro">
+            <h2>数字电路工具</h2>
+            
+            <ul class="tab">
+                <li class="tab-item active"><a href="#1">卡诺图化简</a></li>
+                <li class="tab-item"><a href="#2">...</a></li>
+            </ul>
+            <div class="visible visible-1">
+                <input class="form-input" id="input-logic" type="text" placeholder="输入表达式">
+                <p class="form-input-hint">"+"表示或，"*"表示与，"^"表示异或，"'"表示非</p>
+                
+                <div id="table-out">
+                    <div class="card" id="table-div">
+                    </div>
+                    <div id="res-div">
+                    </div>
+                </div>
+            </div>
+            <div class="visible visible-2">
+                施工中
+            </div>
+        </div>
+        <script src="app_exp_02.js"></script>
+        
+    </body>
+</html>

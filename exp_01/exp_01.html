@@ -1,0 +1,175 @@
+<!doctype html>
+<html>
+  <head>
+    <title>相平面演示</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    
+    <link rel="icon" href="../favicon.ico">
+    <link rel="stylesheet" href="../common/spectre.min.css">
+    <link rel="stylesheet" href="../common/spectre-exp.min.css">
+    <link rel="stylesheet" href="../common/spectre-icons.min.css">
+    
+    <script src="https://apps.bdimg.com/libs/jquery/2.1.4/jquery.min.js"></script>
+    <script src="../common/two.min.js"></script>
+    <script src="../common/rerolpxe-tenretni.js"></script>
+    <script src="../common/header.js"></script>
+    <style>
+      * { 
+        margin: 0; 
+        padding: 0;
+      }
+      body { 
+        
+      }
+      
+      #cover{
+        position: absolute;
+        left: 0;
+        top: 0;
+        bottom: 0;
+        background: #29f;
+        
+      }
+      #two{
+        background: #fff;
+        position: absolute;
+        left: 0;
+        top: 0;
+        bottom: 0;
+      }
+      #intro{
+        background: #fff;
+        position: absolute;
+        right: 0;
+        top: 0;
+        bottom: 0;
+        vertical-align: top;
+        padding: 10px;
+        box-sizing: border-box;
+      }
+      #fxy{
+        width: 60%;
+        margin-left: 20px;
+        overflow:visible;
+        background:#1110;
+      }
+      
+      .navbar{
+        background: #fff;
+        margin-left: 10px;
+      }
+      
+      .navbar .text-center{
+        background: #fff;
+      }
+    </style>
+  </head>
+  <body>
+    <header class="navbar">
+    </header>
+    <div id="two"></div>
+    <div id="intro">
+        <h2>相平面动画演示</h2>
+        <ul class="step">
+          <li class="step-item" id="step0">
+            <a href="#" onclick="exposed.gotoStep(0)">前言</a>
+          </li>
+          <li class="step-item" id="step1">
+            <a href="#" onclick="exposed.gotoStep(1)">匀速运动 </a>
+          </li>
+          <li class="step-item active" id="step2">
+            <a href="#" onclick="exposed.gotoStep(2)">有外力的典型情况 </a>
+          </li>
+          <li class="step-item" id="step3">
+            <a href="#" onclick="exposed.gotoStep(3)">自定义控制算法 </a>
+          </li>
+          <li class="step-item" id="step4">
+            <a href="#" onclick="exposed.gotoStep(4)">非理想条件下的控制</a>
+          </li>
+        </ul>
+        <div class="visible0">
+            <p>本页面含有交互动画，建议使用chrome或者edge浏览器，不兼容ie浏览器。本页以动画交互为主，解说较少，建议搭配b站专栏食用。</p>
+            <ul>
+              这个动画演示可以：
+              <li>模拟一维的刚体运动</li>
+              <li>模拟加速度仅为位移和速度的函数的线性或非线性系统</li>
+              <li>模拟带有时滞的系统</li>
+            </ul>
+            <p>点击上面的进度条进入下一步。</p>
+            
+        </div>
+        <div class="visible1">
+            <p>左图模拟了一个无摩擦力的滑块在一维地面上的运动，上面是相平面，下面是实物示意图。</p>
+            <p>一般的平面直角坐标系中，横轴和纵轴通常是x和y，表示空间的两个维度，或者是两个不同的物理量，表示两个物理量的关系。
+                然而，相平面和一般的平面不一样。它的横轴是位移x，而纵轴是x随时间的变化率，也就是速度u。</p>
+            <p>在相平面上，每一个点都有唯一的坐标(x, u)，代表了滑块的一种运动状态。
+                随着时间的流动，滑块会根据dx=u*dt的规律运动，反映到相平面上就是代表滑块的点会沿水平方向运动。图上的箭头表示了处于不同状态下点的运动方向。
+                由于没有外力，速度不会改变，所以所有箭头都是水平方向的，表示无论如何只有x坐标会改变，而u坐标不变。</p>
+            <p>用鼠标左键点击相平面可以将滑块初始状态置于指定位置，观察其运动。</p>
+            
+        </div>
+        <div class="visible2">
+            <p>现在点击下列按钮，可以按照一定规则来施加外力。</p>
+        </div>
+        <div class="visible3">
+            <p>下面文本框里可以自定义添加外力的规则。点击下面的预设可以查看其对应的代码作为参考。</p>
+        </div>
+        <div class="visible2 visible3">
+            <div class="btn-group btn-group-block">
+                <button onclick="exposed.changeFunction(presets.free);highlightBtn(event.target);" class="btn tooltip tooltip-bottom" data-tooltip="无外力">自由运动</button>
+                <button onclick="exposed.changeFunction(presets.constant);highlightBtn(event.target);" class="btn tooltip tooltip-bottom" data-tooltip="向右的恒力">恒力</button>
+                <button onclick="exposed.changeFunction(presets.spring);highlightBtn(event.target);" class="btn tooltip tooltip-bottom" data-tooltip="回复力的大小与位移成正比">弹簧</button>
+                <button onclick="exposed.changeFunction(presets.nspring);highlightBtn(event.target);" class="btn tooltip tooltip-bottom" data-tooltip="回复力变成排斥力，离得越远排斥力越大">反向弹簧</button>
+                <button onclick="exposed.changeFunction(presets.damping);highlightBtn(event.target);" class="btn tooltip tooltip-bottom" data-tooltip="速度与阻力成正比">纯阻尼</button>
+                <button onclick="exposed.changeFunction(presets.ndamping);highlightBtn(event.target);" class="btn tooltip tooltip-bottom" data-tooltip="阻力变成推力，速度越大加速度越大">反向阻尼</button>
+                <button onclick="exposed.changeFunction(presets.pd1);highlightBtn(event.target);" class="btn tooltip tooltip-bottom" data-tooltip="kp=1,kd=1 等于弹簧加阻尼">PD①</button>
+                <button onclick="exposed.changeFunction(presets.pd2);highlightBtn(event.target);" class="btn tooltip tooltip-bottom" data-tooltip="kp=2,kd=0.5 等于弹簧加阻尼">PD②</button>
+                <button onclick="exposed.changeFunction(presets.pd3);highlightBtn(event.target);" class="btn tooltip tooltip-bottom" data-tooltip="kp=0.5,kd=2 等于弹簧加阻尼">PD③</button>
+                <button onclick="exposed.changeFunction(presets.comb5);highlightBtn(event.target);" class="btn tooltip tooltip-bottom" data-tooltip="普通的组合（产生稳态误差）">恒力+PD①</button>
+                <button onclick="exposed.changeFunction(presets.comb1);highlightBtn(event.target);" class="btn tooltip tooltip-bottom" data-tooltip="奇怪的组合">弹簧+反向阻尼</button>
+                <button onclick="exposed.changeFunction(presets.comb2);highlightBtn(event.target);" class="btn tooltip tooltip-bottom" data-tooltip="奇怪的组合">反向弹簧+阻尼</button>
+                <button onclick="exposed.changeFunction(presets.comb3);highlightBtn(event.target);" class="btn tooltip tooltip-bottom" data-tooltip="普通的组合">恒力+阻尼</button>
+                <button onclick="exposed.changeFunction(presets.comb4);highlightBtn(event.target);" class="btn tooltip tooltip-bottom" data-tooltip="普通的组合">恒力+弹簧</button>
+                <button onclick="exposed.changeFunction(presets.friction);highlightBtn(event.target);" class="btn tooltip tooltip-bottom" data-tooltip="大小不变，方向与速度相反">摩擦力</button>
+                <button onclick="exposed.changeFunction(presets.nfriction);highlightBtn(event.target);" class="btn tooltip tooltip-bottom" data-tooltip="大小不变，方向与速度相同">反向摩擦力</button>
+                <button onclick="exposed.changeFunction(presets.nl1);highlightBtn(event.target);" class="btn tooltip tooltip-bottom" data-tooltip="x大于0时输出-1，小于0时输出1">理想继电器</button>
+                <button onclick="exposed.changeFunction(presets.nl2);highlightBtn(event.target);" class="btn tooltip tooltip-bottom" data-tooltip="力和cos5πx成正比">超级非线性</button>
+            </div>
+        </div>
+        <div class="visible4">
+            <p>可能你已经找到了一个比较好的算法能让滑块快速稳定到原点，然而这只是理想情况下的结果，
+                现实中的控制系统有很多的限制。比如说发动机的推力有限，加速度的大小不可能太大（饱和非线性），
+                或者发动机推力有下限，不能精细调节，或者发动机调整推力是有延迟的，发出指令后过一段时间才有响应。
+                试一下在限制下同样的算法是否还能正常运行。</p>
+        </div>
+        <div class="visible4">
+            <div class="btn-group btn-group-block">
+                <button onclick="exposed.changeFunction(presets.pd1);highlightBtn(event.target);" class="btn tooltip tooltip-bottom" data-tooltip="kp=1,kd=1">PD①理想</button>
+                <button onclick="exposed.changeFunction(presets.pd1_sat);highlightBtn(event.target);" class="btn tooltip tooltip-bottom" data-tooltip="kp=1,kd=1，限制加速度大小不超过0.2">PD①饱和</button>
+                <button onclick="exposed.changeFunction(presets.pd1_d1);highlightBtn(event.target);" class="btn tooltip tooltip-bottom" data-tooltip="kp=1,kd=1，纯滞后0.6秒">PD①纯滞后</button>
+                <button onclick="exposed.changeFunction(presets.pd1_d2);highlightBtn(event.target);" class="btn tooltip tooltip-bottom" data-tooltip="kp=1,kd=1，容量滞后，时间常数为3">PD①容量滞后</button>
+            </div>
+        </div>
+        <div class="visible2">
+            <p>施加外力会产生加速度，加速度会使速度随着时间改变，反映到相平面上就是代表滑块的点在竖直方向移动（绿色箭头）。
+                这个竖直方向的运动和之前的水平方向的运动（灰色箭头）合成之后，就得到了总的运动方向（紫色箭头）。
+                质点总是会沿着紫色箭头的指向运动。</p>
+            <p>在不同的外力下，紫色箭头的分布会有所不同，因此滑块的运动会有不同的结果。
+                有的时候会发散，有的时候会等幅振荡，有的时候能稳定到一个点上。</p>
+            <p>因为速度与位移的关系（灰色箭头）是刚体的固有属性，不能改变，所以要想控制刚体，
+                就是要想办法设计出合理的施力规则（绿色箭头分布），使得紫色箭头的分布能让刚体稳定到目标点上</p>
+        </div>
+        <div class="visible3">
+            <p>语法为<a target="_blank" href="https://www.w3school.com.cn/js/js_functions.asp">javascript</a>，其中x表示位移，u表示x方向的速度，返回值代表算法的输出。</p>
+        </div>
+        <div class="visible3 visible4">
+            <pre>a = function(x, u){</pre>
+            <textarea  class="form-input" id="fxy" rows=4>return 0</textarea>
+            <pre>}</pre>
+            <button onclick="exposed.changeFunction(input_fxy.value)" class="btn">执行</button>
+        </div>
+    </div>
+    <script src="app_exp_01.js"></script>
+  </body>
+</html>
