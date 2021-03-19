@@ -4,9 +4,21 @@
 //(╯‵□′)╯︵┻━┻
 
 $(function(){
+    
     function reshape(){
         $('#inputimg').css('height', $('#inputimg').width() + 'px');
         $('#outputimg').css('height', $('#outputimg').width() + 'px');
+    }
+    
+    function clearError(){
+        $('#fileinputgroup').removeClass('has-error');
+        $('#fileinputgroup .form-input-hint').html('');
+        $('#parbingroup').removeClass('has-error');
+        $('#parbingroup .form-input-hint').html('');
+        $('#parwidthgroup').removeClass('has-error');
+        $('#parwidthgroup .form-input-hint').html('');
+        $('#parcellgroup').removeClass('has-error');
+        $('#parcellgroup .form-input-hint').html('');
     }
     
     // 根据数据类型取合适的指针
@@ -237,13 +249,8 @@ $(function(){
         $('#loaded').css('display', '');
         reshape();
         
-        $('#fileinput').on('change', e=>{
-            if ($('#fileinput')[0].files.length > 0){
-                $('#go').removeClass('disabled');
-            }
-            else{
-                $('#go').addClass('disabled');
-            }
+        $('#fileinput, #parbin, #parcell, #parwidth').on('change', e=>{
+            clearError();
         });
         
         $('#go').on('click', e=>{
@@ -264,19 +271,20 @@ $(function(){
 //            console.log(numBins);
 //            console.log(cellSize);
 //            console.log(imHeight);
-            if (!(numBins > 0)){
-                $('#parbingroup').addClass('has-error');
-                $('#parbingroup .form-input-hint').html('无效数字');
+
+            if (!(imWidth > 0)){
+                $('#parwidthgroup').addClass('has-error');
+                $('#parwidthgroup .form-input-hint').html('无效数字');
+                return;
+            }
+            if (imWidth > 1024){
+                $('#parwidthgroup').addClass('has-error');
+                $('#parwidthgroup .form-input-hint').html('width <= 1024');
                 return;
             }
             if (!(cellSize > 0)){
                 $('#parcellgroup').addClass('has-error');
                 $('#parcellgroup .form-input-hint').html('无效数字');
-                return;
-            }
-            if (!(imWidth > 0)){
-                $('#parwidthgroup').addClass('has-error');
-                $('#parwidthgroup .form-input-hint').html('无效数字');
                 return;
             }
             
@@ -287,14 +295,13 @@ $(function(){
                 return;
             }
             
-            $('#fileinputgroup').removeClass('has-error');
-            $('#fileinputgroup .form-input-hint').html('');
-            $('#parbingroup').removeClass('has-error');
-            $('#parbingroup .form-input-hint').html('');
-            $('#parwidthgroup').removeClass('has-error');
-            $('#parwidthgroup .form-input-hint').html('');
-            $('#parcellgroup').removeClass('has-error');
-            $('#parcellgroup .form-input-hint').html('');
+            if (!(numBins > 0)){
+                $('#parbingroup').addClass('has-error');
+                $('#parbingroup .form-input-hint').html('无效数字');
+                return;
+            }
+            
+            clearError();
             
             mainProcess(imWidth, imHeight, cellSize, numBins)
             
