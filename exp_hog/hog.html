@@ -1,0 +1,131 @@
+<!doctype html>
+<html>
+    <head>
+        <title>HOG特征可视化</title>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+
+        <link rel="icon" href="../favicon.ico">
+        <link rel="stylesheet" href="../common/spectre.min.css">
+        <link rel="stylesheet" href="../common/spectre-exp.min.css">
+        <link rel="stylesheet" href="../common/spectre-icons.min.css">
+
+        <script src="https://apps.bdimg.com/libs/jquery/2.1.4/jquery.min.js"></script>
+        <script async id='cvjs' src="https://cdn.jsdelivr.net/npm/opencv.js@1.2.1/opencv.min.js"></script>
+        <script src="../common/rerolpxe-tenretni.js"></script>
+        <!--<script src="../common/header.js"></script>-->
+        <style>
+            * { 
+            margin: 0; 
+            padding: 0;
+            }
+            body { 
+                -overflow: overlay
+            }
+
+            #intro{
+                background: #fff;
+                -position: absolute;
+                width: auto;
+                padding: 20px;
+            }
+
+            .navbar{
+                background: #fff;
+                margin-left: 10px;
+            }
+
+            .navbar .text-center{
+                background: #fff;
+            }
+
+            .center {
+                text-align: center;
+            }
+            
+            #inputimg{
+                width: 80%;
+                max-width: 420px;
+                border: 1px solid #aaa;
+            }
+            #outputimg{
+                width: 80%;
+                max-width: 420px;
+                border: 1px solid #aaa;
+            }
+            
+            .hidden{
+                display: none;
+            }
+
+        </style>
+    </head>
+    <body>
+        <header class="navbar">
+        </header>
+        
+        
+        <div id="intro">
+            <h2>HOG特征可视化</h2>
+            <p id="loading"><span class="loading" style="width:20px">　</span>加载中</p>
+            <div id="loaded">
+                <span>目标探测与识别作业 2021/03/19</span>
+                
+                <form class="form-horizontal" action="#">
+                    <div class="form-group" id="parwidthgroup">
+                        <div class="col-3 col-sm-12">
+                            <label class="form-label" for="parwidth">重新调整图片宽高：</label>
+                        </div>
+                        <div class="col-9 col-sm-12">
+                            <input class="form-input" id="parwidth" type="number" placeholder="Width" value=512>
+                            <span class="form-input-hint"></span>
+                        </div>
+                    </div>
+                    <div class="form-group" id="parcellgroup">
+                        <div class="col-3 col-sm-12">
+                            <label class="form-label" for="parcell">Cell宽度：</label>
+                        </div>
+                        <div class="col-9 col-sm-12">
+                            <input class="form-input" id="parcell" type="number" placeholder="Cell" value=8>
+                            <span class="form-input-hint"></span>
+                        </div>
+                    </div>
+                    <div class="form-group" id="parbingroup">
+                        <div class="col-3 col-sm-12">
+                            <label class="form-label" for="parcell">Bin数量：</label>
+                        </div>
+                        <div class="col-9 col-sm-12">
+                            <input class="form-input" id="parbin" type="number" placeholder="Bin" value=9>
+                            <span class="form-input-hint"></span>
+                        </div>
+                    </div>
+                    <div class="form-group" id="fileinputgroup">
+                        <div class="col-3 col-sm-12">
+                            <label class="form-label" for="fileinput">图片文件：</label>
+                        </div>
+                        <div class="col-9 col-sm-12">
+                            <input type="file" class="form-input" id="fileinput" name="file" accept="image/*" />
+                            <span class="form-input-hint"></span>
+                        </div>
+                    </div>
+                </form>
+                    <button id="go" class="btn btn-primary">Go</button>
+                
+                <div class="columns">
+                    <div class="column col-6 center">
+                        <canvas id="inputimg" ></canvas>
+                    </div>
+                    <div class="column col-6 center">
+                        <canvas id="outputimg" ></canvas>
+                    </div>
+                </div>
+                
+                <span id="result"></span>
+            </div>
+        </div>
+        <span style="float:right;color:#888;">Powered by opencv.js</span>
+        <img class="hidden" id="hidden" />
+        <script src="app.js"></script>
+        
+    </body>
+</html>
