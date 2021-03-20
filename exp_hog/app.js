@@ -21,6 +21,12 @@ $(function(){
         $('#parcellgroup .form-input-hint').html('');
     }
     
+    function sleep(ms){
+        return new Promise(resolve => {
+            setTimeout(resolve, ms);
+        });
+    }
+    
     // 根据数据类型取合适的指针
     function correctPtr(mat){
         switch(mat.type() % 8){
@@ -115,7 +121,7 @@ $(function(){
                 bin = Math.floor(binfrac);
                 binfrac -= bin;
                 res[bin] += (1-binfrac) * m;
-                res[(bin >= numBins - 1) ? 0 : (bin+1)] += binfrac * m;
+                res[(bin+1) % numBins] += binfrac * m;
             }
         }
         return res;
@@ -185,8 +191,16 @@ $(function(){
         }
         
         //按照每一个小cell标准化并可视化
-        var normalBuffer = []
-        for (var i = 0; i < numBins; i++) normalBuffer[i] = 0;
+        var normalBuffer = []; //模长缓存
+        var numBinsScale = Math.sqrt(numBins);
+        var cosAngle = []; //预计算正弦余弦
+        var sinAngle = [];
+        for (var anglei = 0; anglei < numBins; anglei++){ 
+            var curangle = anglei * Math.PI / numBins;
+            cosAngle[anglei] = Math.cos(curangle);
+            sinAngle[anglei] = Math.sin(curangle);
+        }
+        for (var i = 0; i < numBins; i++) normalBuffer[i] = 0; //初始化长度缓存
         for (var cr = 0; cr < cellRows; cr++){
             for (var cc = 0; cc < cellCols; cc++){
                 var centerX = cc * cellSize + cellSize / 2;
@@ -194,10 +208,9 @@ $(function(){
                 var hog = hogDict[cr+'|'+cc];
                 normalizeArr(hog, normalBuffer);
                 for (var anglei = 0; anglei < numBins; anglei++){
-                    var curangle = anglei * Math.PI / numBins;
-                    var length = cellSize * 0.7 * normalBuffer[anglei];
-                    var dx = length * Math.cos(curangle);
-                    var dy = -length * Math.sin(curangle);
+                    var length = cellSize * 0.3 * numBinsScale * normalBuffer[anglei];
+                    var dx = length * cosAngle[anglei];
+                    var dy = -length * sinAngle[anglei];
                     cv.line(visualize, new cv.Point(centerY + dy, centerX + dx), new cv.Point(centerY - dy, centerX - dx), new cv.Scalar(255, 255, 255, 255));
                 }
             }
@@ -219,6 +232,7 @@ $(function(){
 //            resstr += res[i] + ', '
 //        }
         $('#result').html(resstr);
+        console.log(res);
         
         //let res = new cv.Mat();
         //console.log(mat.size());
@@ -263,7 +277,8 @@ $(function(){
             }
         });
         
-        $('#hidden').on('load', e=>{
+        $('#hidden').on('load', async e => {
+            
             var numBins = parseInt($('#parbin').val());
             var cellSize = parseInt($('#parcell').val());
             var imWidth = parseInt($('#parwidth').val());
@@ -302,8 +317,12 @@ $(function(){
             }
             
             clearError();
+            $('#go').addClass('loading disabled');
+            await sleep(50);
             
-            mainProcess(imWidth, imHeight, cellSize, numBins)
+            mainProcess(imWidth, imHeight, cellSize, numBins);
+            
+            $('#go').removeClass('loading disabled');
             
         });
     });
