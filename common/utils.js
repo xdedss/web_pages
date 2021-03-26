@@ -1,8 +1,7 @@
 
 
-var utils = {};
 
-(function(){
+(function(utils){
     
     function getParams(url) {
         url = url == null ? window.location.href : url;
@@ -57,6 +56,7 @@ var utils = {};
         throw 'type not supported : ' + o;
     }
     
+    // Caution: no loop detection
     function instantiate(o){
         if (typeof(o) == 'object'){
             var res = {};
@@ -75,4 +75,4 @@ var utils = {};
     utils.padRight = padRight;
     utils.repeat = repeat;
     
-})();
+})(window.utils = {});

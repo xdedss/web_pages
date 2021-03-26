@@ -1,7 +1,7 @@
 <!doctype html>
 <html>
     <head>
-        <title>Keyboard</title>
+        <title>Tempo Finder</title>
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
 
@@ -11,7 +11,6 @@
         <link rel="stylesheet" href="../common/spectre-icons.min.css">
 
         <script src="https://apps.bdimg.com/libs/jquery/2.1.4/jquery.min.js"></script>
-        <script src="../common/Tone.js"></script>
         <script src="../common/header.js"></script>
         <script src="../common/rerolpxe-tenretni.js"></script>
         <script src="../common/keyboard.js"></script>
@@ -41,6 +40,24 @@
                 background: #fff;
             }
             
+            #scroll {
+                height: 50px;
+                width : 100$;
+                border : 1px solid #aaa;
+                position: relative;
+            }
+            
+            #scroll span{
+                height : 100%;
+                width : 2px;
+                position : absolute;
+                background-color : #888;
+                top:0;
+            }
+            
+            #hit{
+                width : 100px;
+            }
 
         </style>
     </head>
@@ -51,10 +68,14 @@
         
         <div id="intro">
             
+            <h1>Tempo Finder</h1>
+            <h4>Average: <span id="tempo">0</span>&nbsp;bpm</h4>
             
-            <div class="columns">
-                
-                
+            <div id="scroll">
+                <span id="startline"></span>
+            </div>
+            
+            <span>按任意键敲出节奏或点击<button id="hit" class="btn btn-success">Hit</button></span>
             
         </div>
         

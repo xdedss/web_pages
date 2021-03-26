@@ -1,5 +1,8 @@
 //requires jQuery
 
+// listen to mouse events in a limited area
+// xdedss 2020
+// MIT License
 
 var events = {};
 
@@ -90,6 +93,8 @@ var events = {};
             activeShape : null,
             active : false,
             downShape : null,
+            // vertices could be an array of [relativeX, relativeY] 
+            // or a function that returns such array dynaimcally
             registerListener : function(vertices, listeners, index){
                 if (index === undefined) index = 0;
                 

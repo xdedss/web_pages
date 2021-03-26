@@ -229,7 +229,8 @@ $(function(){
 //        }
     }).on('dragstart selectstart contextmenu', e=>false);
     
-    
+    kb.onKeyDown('ArrowUp', ()=>changePitch(1));
+    kb.onKeyDown('ArrowDown', ()=>changePitch(-1));
     
     //var keyset1 = keysetFromString("AWSEDFTGYHUJKOLP;'");
     var keyset2 = keysetFromString("ZSXDCVGBHNJM,L.;/Q2W3E4RT6Y7UI9O0P-[]");

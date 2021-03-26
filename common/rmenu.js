@@ -1,5 +1,9 @@
 // requires jQuery
 
+// Chrome style right click menu
+// xdedss 2020
+// MIT License
+
 var rmenu = {};
 
 (function($){
