@@ -2,6 +2,8 @@
 $(document).one('mousedown pointerdown touchstart contextmenu click change', Tone.start);
 
 
+(function($){
+    
 
 $(function(){
     
@@ -240,3 +242,8 @@ $(function(){
     initKeyboard(keyset2);
     scrollRelative($('#keyboard-scroll'), $('#position').val()/100.0);
 });
+
+
+
+})(jQuery);
+

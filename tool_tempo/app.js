@@ -1,5 +1,6 @@
 
-
+(function($){
+    
 $(function(){
     
     var numlines = 100;
@@ -15,7 +16,7 @@ $(function(){
     
     marks = [];
     
-    function addMark(startTime, isStart){
+    function addMark(startTime, color){
         if (marks.length >= numlines){
             removeLastMark();
         }
@@ -23,7 +24,7 @@ $(function(){
             index : currentIndex,
             startTime : startTime
         })
-        $('#mark' + currentIndex).css('display', '').css('left', '0').css('background-color', isStart ? '#f88' : '#888');
+        $('#mark' + currentIndex).css('display', '').css('left', '0').css('background-color', color);
         currentIndex++;
         currentIndex %= numlines;
     }
@@ -62,19 +63,20 @@ $(function(){
         var thisbeat = Date.now();
         var dt = (thisbeat - lastbeat) / 1000.0;
         
-        if (dt > intervalAvg * 3) {
+        if (dt > intervalAvg * 3 || dt > 2) {
             // new segment
 //            intervalEst = 1;
 //            intervalEstVar = 0.5;
             intervalBuffer = [];
             intervalAvg = 1;
             
-            addMark(thisbeat, true);
+            addMark(thisbeat, '#f88');
             updateDisplay();
         }
         else if(dt < 0.2) {
             // §¯§Ö§ä
             console.log('too fast');
+            addMark(thisbeat, '#eee');
             return;
         }
         else{
@@ -86,7 +88,7 @@ $(function(){
 //            intervalEstVar = (intervalEstVar * intervalMeasuredVar * intervalMeasuredVar + intervalEstVar * intervalEstVar * intervalMeasuredVar) / (d * d);
 //            console.log(`measured:${60/intervalMeasured}\nbpmEst:${60/intervalEst}, var:${intervalEstVar}`);
             // avg
-            if (intervalBuffer.length >= 64){
+            if (intervalBuffer.length >= 128){
                 intervalBuffer.shift();
             }
             intervalBuffer.push(dt);
@@ -96,12 +98,16 @@ $(function(){
             }
             intervalAvg /= intervalBuffer.length;
             
-            addMark(thisbeat);
+            addMark(thisbeat, '#888');
             updateDisplay();
         }
         
         lastbeat = thisbeat;
     }
+    
+    
+    
+    
     
     setInterval(updateMarks, 20);
     
@@ -109,3 +115,5 @@ $(function(){
     $(document).on('keydown', beat);
     $('#hit').on('pointerdown', beat);
 });
+
+})(jQuery);
