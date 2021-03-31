@@ -1,0 +1,319 @@
+<!doctype html>
+<html>
+    <head>
+        <title>Coding Games</title>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+
+        <link rel="icon" href="../favicon.ico">
+        <link rel="stylesheet" href="../common/spectre.min.css">
+        <link rel="stylesheet" href="../common/spectre-exp.min.css">
+        <link rel="stylesheet" href="../common/spectre-icons.min.css">
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/codemirror@5.60.0/lib/codemirror.css">
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/codemirror@5.60.0/addon/fold/foldgutter.css">
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/codemirror@5.60.0/addon/lint/lint.css">
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/codemirror@5.60.0/addon/hint/show-hint.css">
+
+        <script src="https://apps.bdimg.com/libs/jquery/2.1.4/jquery.min.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/jshint@2.10.1/dist/jshint.min.js"></script>
+        
+        <script src="https://cdn.jsdelivr.net/npm/JSCPP@2.0.6/dist/JSCPP.es5.js"></script>
+        <!--<script src="JSCPP.es5.min.js"></script>-->
+       
+        <script src="https://cdn.jsdelivr.net/npm/matter-js@0.14.2/build/matter.min.js"></script>
+      
+        <script src="../common/rerolpxe-tenretni.js"></script>
+        <!--<script src="../common/header.js"></script>-->
+        
+        <script src="../common/require.js" data-main="app"></script>
+        <style>
+            * { 
+            margin: 0; 
+            padding: 0;
+            }
+            body { 
+                -overflow: overlay
+            }
+
+            #intro{
+                background: #fff;
+                -position: absolute;
+                width: auto;
+                padding: 20px;
+            }
+
+            .navbar{
+                background: #fff;
+                margin-left: 10px;
+            }
+
+            .navbar .text-center{
+                background: #fff;
+            }
+
+            .center {
+                text-align: center;
+            }
+            
+            
+            .hidden{
+                display: none;
+            }
+            
+            .btn-group {
+                margin-bottom : 2px;
+            }
+            
+            .noleft {
+                border-left: none;
+                border-top-left-radius : 0px;
+                border-bottom-left-radius : 0px;
+            }
+            
+            #loaded{
+                display : none;
+            }
+            
+            #world{
+                -min-width: 500px;
+                -min-height : 500px;
+                -background-color : #f0f;
+            }
+            
+            #console{
+                height : 180px;
+                background-color : #eee;
+                overflow-y : scroll;
+                font-size : 80%;
+            }
+            
+            #console td{
+                padding-top : 1px;
+                padding-bottom : 1px;
+            }
+            #console td:nth-child(2){
+                width : 100%;
+            }
+            #console .log-msg{
+                color : #3b4351;
+            }
+            #console .log-warn{
+                color : #d70;
+            }
+            #console .log-err{
+                color : #f00;
+            }
+            #console .log-green{
+                color : #0a0;
+            }
+            
+            #info .help-frame{
+                margin-left : 20px;
+                margin-bottom : 10px;
+                padding-left : 5px;
+                border-left : 5px solid #eee;
+            }
+            #info .help-frame.d0{
+                margin-left : 0px;
+                margin-bottom : 30px;
+            }
+            
+            #info .help-title{
+                margin-bottom : 5px;
+                font-size : 16px;
+            }
+            #info .help-title.d0{
+                font-size : 20px;
+            }
+            #info .help-title.d1{
+                font-size : 18px;
+            }
+            
+            #info .help-subtitle{
+                margin-left : 5px;
+                margin-bottom : 5px;
+            }
+            
+            #info .help-type{
+                font-size : 50%;
+                color : #f80;
+            }
+            
+            #info .help-desc{
+                margin-left : 5px;
+                margin-bottom : 5px;
+                color : #888;
+            }
+            
+            
+        </style>
+    </head>
+    <body>
+        <header class="navbar">
+        </header>
+        
+        
+        <div id="intro">
+            <!--标题-->
+            <h3>Coding Games 
+                <div class="btn-group float-right">
+                    <a class="btn btn-link" href="#help" id="btn-help">帮助</a> 
+                    <a class="btn btn-link" href="https://gitee.com/xdedss/web_pages" target="_blank">Source</a> 
+                </div>
+            </h3>
+            <!--加载界面-->
+            <p id="loading-container"><span class="loading" style="width:20px">　</span>加载中</p>
+            <!--主界面-->
+            <div id="loaded-container">
+                <div id="mainframe" class="columns">
+                    <!--CodeMirror编辑器部分-->
+                    <div id="editorframe" class="column">
+                        <!--编辑器左侧按钮-->
+                        <div class="btn-group">
+                            <button class="btn" id="btn-save" data-tooltip="保存"><i class="icon icon-download"></i>保存</button>
+                            <button class="btn" id="btn-load" data-tooltip="加载"><i class="icon icon-upload"></i>加载</button>
+                            <button class="btn tooltip" id="btn-reset" data-tooltip="清空代码"><i class="icon icon-cross"></i>重置</button>
+                            <!--<a class="btn" href="#help"><i class="icon icon-search"></i>帮助</a>-->
+                        </div>
+                        <!--编辑器左侧按钮（第二组）-->
+                        <div class="btn-group">
+                            <a class="btn tooltip" data-tooltip="场景信息" href="#info">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" style="margin-bottom:-3px;" viewBox="0 0 16 16">
+                                    <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z"/>
+                                    <path d="M8.93 6.588l-2.29.287-.082.38.45.083c.294.07.352.176.288.469l-.738 3.468c-.194.897.105 1.319.808 1.319.545 0 1.178-.252 1.465-.598l.088-.416c-.2.176-.492.246-.686.246-.275 0-.375-.193-.304-.533L8.93 6.588zM9 4.5a1 1 0 1 1-2 0 1 1 0 0 1 2 0z"/>
+                                </svg>
+                            </a>
+                            <div class="dropdown"><a class="btn dropdown-toggle noleft" id="btn-lang" tabindex="0">语言:<span id="langname"></span> <i class="icon icon-caret"></i></a>
+                                <ul class="menu" id="langlist">
+                                    
+                                </ul>
+                            </div>
+                            <div class="dropdown"><a class="btn dropdown-toggle noleft" id="btn-loadlevel" tabindex="0">场景:<span id="levelname"></span> <i class="icon icon-caret"></i></a>
+                                <ul class="menu" id="levellist">
+                                    
+                                </ul>
+                            </div>
+                        <!--    <div class="popover popover-bottom">
+                                <a class="btn" id="btn-loadlevel" href="#popovers" style="margin-bottom:2px">场景:<span id="levelname"></span><i class="icon icon-arrow-down"></i></a>
+                                <div class="popover-container">
+                                    <ul class="menu" id="scenelist">
+                                        
+                                    </ul>
+                                </div>
+                            </div>-->
+                        </div>
+                        <!--编辑器右侧按钮-->
+                        <div class="btn-group float-right">
+                            <button class="btn" id="btn-clearconsole"><i class="icon icon-delete"></i>清空控制台</button>
+                            <button class="btn btn-primary" id="btn-run"><i class="icon icon-forward"></i>执行代码</button>
+                        </div>
+                        <!--编辑器容器-->
+                        <div id="jseditor">
+                            
+                        </div>
+                    </div>
+                    <!--Matter.js部分-->
+                    <div class="column col-auto">
+                        <!--左侧按钮-->
+                        <div class="btn-group">
+                            <button class="btn" id="btn-resetsim"><i class="icon icon-refresh"></i>重新模拟</button>
+                            <button class="btn" id="btn-pause">▍▍ 暂停</button>
+                            <button class="btn" id="btn-resume">▶ 恢复</button>
+                        </div>
+                        <!--右侧提示-->
+                        <span id="status" class="label label-success float-right"></span>
+                        <!--容器-->
+                        <div id="world">
+                            
+                        </div>
+                    </div>
+                </div>
+                <!--virtual console-->
+                <div id="console">
+                    <table class="table table-striped table-hover">
+                        <tbody>
+                            <tr><td></td><td>Console output goes here.</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        <!--<span style="float:right;color:#888;padding-right:10px;">Powered by CodeMirror & Matter.js & esper</span>-->
+        
+        <!--隐藏文件上传-->
+        <input type='file' id="fileselect" class="hidden" accept=".js">
+        
+        <!--帮助弹窗-->
+        <div class="modal" id="help">
+            <a href="#close" class="modal-overlay" aria-label="Close"></a>
+            <div class="modal-container">
+                <div class="modal-header">
+                    <a href="#close" class="btn btn-clear float-right" aria-label="Close"></a>
+                    <div class="modal-title h5">帮助</div>
+                </div>
+                <div class="modal-body">
+                    <div class="content">
+                        <p>按F1或页面右上角按钮可以打开此帮助页面🤔</p>
+                        <h4>关于此应用</h4>
+                        <p>这是一个通用的编程游戏框架，可以模块化地加载不同的场景，让用户在编辑器里编写代码来控制物理模拟中的物体。</p>
+                        <p>目前支持三种语言：javascript、python3和c++。其中python仅支持有限的包（math等），c++仅支持基本类型和有限的头文件（具体请看JSCPP的readme）</p>
+                        <p>代码均在本地浏览器中的沙箱里执行。</p>
+                        <h5>操作说明：</h5>
+                        <ul class="list">
+                            <li>保存：将当前编辑的代码以文件形式下载，快捷键ctrl+s</li>
+                            <li>加载：从本地上传代码文本文件，快捷键ctrl+o</li>
+                            <li>清空代码：重置回当前场景的默认示例代码</li>
+                            <li>场景信息：查看由场景提供的文档</li>
+                            <li>场景：切换场景并重新初始化</li>
+                            <li>清空控制台：清除虚拟控制台里的所有调试信息</li>
+                            <li>执行代码：将当前编辑区的代码传入物理引擎中执行（不会重置物理引擎）</li>
+                            <li>重置模拟：将物理引擎中所有物体重设回初始状态（不会重新加载代码）</li>
+                            <li>暂停/恢复：暂停/恢复物理引擎</li>
+                        </ul>
+                        <h5>Tips</h5>
+                        <h6>改动标记</h6>
+                        <p>在保存和执行代码两个按钮上有时会出现蓝点，表示当前代码相对于上一次保存或执行有没有改动。改动的代码必须再次点击运行才会进入模拟；未保存的代码在刷新或切换场景时会消失，请注意及时保存代码。</p>
+                        <h6>场景信息</h6>
+                        <p>不同的场景可能有不同的变量定义和具体操作方式，请在切换场景后点击场景信息按钮查看。</p>
+                        <h6>错误定位</h6>
+                        <p>如果代码运行过程中出错，双击控制台的错误信息可以让编辑器光标跳转到错误位置。</p>
+                        <h5>Powered by</h5>
+                        <a class="btn btn-link" href="https://picturepan2.github.io/spectre/index.html" target="_blank">Spectre</a>/
+                        <a class="btn btn-link" href="https://codemirror.net/" target="_blank">CodeMirror</a>/
+                        <a class="btn btn-link" href="https://github.com/liabru/matter-js" target="_blank">Matter.js</a>/
+                        <a class="btn btn-link" href="https://github.com/codecombat/esper.js/" target="_blank">Esper</a>/
+                        <a class="btn btn-link" href="http://skulpt.org/" target="_blank">Skulpt</a>/
+                        <a class="btn btn-link" href="https://github.com/felixhao28/JSCPP" target="_blank">JSCPP</a>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    (╯‵□′)╯︵┻━┻
+                </div>
+            </div>
+        </div>
+        
+        <!--场景描述弹窗-->        
+        <div class="modal" id="info">
+            <a href="#close" class="modal-overlay" aria-label="Close"></a>
+            <div class="modal-container">
+                <div class="modal-header">
+                    <a href="#close" class="btn btn-clear float-right" aria-label="Close"></a>
+                    <div class="modal-title h5">场景信息</div>
+                </div>
+                <div class="modal-body">
+                    <div class="content">
+                        <p id="leveldesc"></p>
+                        <h4>全局变量</h4>
+                        <div id="globalvars">
+                            <p>这里列出了此场景中可以使用的全局变量</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    
+                </div>
+            </div>
+        </div>
+        
+    </body>
+</html>
