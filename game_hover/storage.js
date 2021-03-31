@@ -44,6 +44,9 @@ define([], function(){
             }
             return res;
         }
+        clear(){
+            this.all().forEach(key => this.remove(key));
+        }
     }
     
     var misc = new PrefixStorage('storage_misc_');

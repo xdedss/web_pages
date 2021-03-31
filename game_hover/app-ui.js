@@ -81,9 +81,7 @@ define([], function(){
         
         var logError = function(m) {
             log(m.toString(), 2, e => {
-                traceErrorListeners.forEach(l => {
-                    l(m);
-                });
+                listeners.invoke('traceerror', m);
             });
         }
         
