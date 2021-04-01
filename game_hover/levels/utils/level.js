@@ -57,6 +57,12 @@ define([], function(){
                 Matter.Composite.remove(world, this.scene[k]);
             }
             Matter.Events.off(this.matter.engine, 'collisionStart', this._collision);
+            this.destruct();
+        }
+        
+        // terminate后调用 给子类用
+        destruct (){
+            
         }
         
         // 物理帧

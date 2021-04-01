@@ -66,6 +66,7 @@ define([], function(){
     return {
         code,
         level,
+        misc,
         isFirstOpen,
     }
     

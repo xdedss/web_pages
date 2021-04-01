@@ -3,7 +3,7 @@
 
 // 发射台场景基本setup
 
-define([], function(){
+define(['image!levels/res/launchpads.png'], function(){
     
     function setSprite(body, srcSize, tgtSize, path){
         body.render.sprite.texture = path;
@@ -44,7 +44,7 @@ define([], function(){
                 render : { 
                     fillStyle : 'none',
                 },
-                friction : 0.6,
+                friction : 0.8,
             });
             this.scene.lborder = Matter.Bodies.rectangle(-100, -bgHeight / 2, 200, bgHeight, {
                 isStatic : true,

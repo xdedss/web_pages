@@ -130,6 +130,9 @@ define([], function(){
                     }
                 }
             }
+            else if (docObj.type == 'array'){
+                res.append(describeDocObject(myname + '[i]', depth + 1, docObj.item));
+            }
             else if (docObj.children != null){
                 //res.append('<p class="help-subtitle d${depth}">属性：</p>');
                 for (var child in docObj.children){

@@ -201,7 +201,7 @@ define(function() {
             engine.cam.size *= Math.pow((engine.camTarget.size / engine.cam.size), lerpT);
             Matter.Render.lookAt(render, { x : engine.cam.x, y : engine.cam.y }, { x: engine.cam.size/2, y: engine.cam.size/2 });
             Matter.Mouse.setOffset(mouse, render.bounds.min);
-            var mouseScale = engine.cam.size / height / render.options.pixelRatio;
+            var mouseScale = engine.cam.size / height;// / render.options.pixelRatio;
             Matter.Mouse.setScale(mouse, { x : mouseScale, y : mouseScale });
         });
         

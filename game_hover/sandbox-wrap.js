@@ -129,7 +129,7 @@ define(['esper', 'skulpt'], function(esper, skulpt){
                         var hook = this.hooks[i];
                         var hookFunc = sandbox.evalSync(hook.name).toNative();
                         if (typeof(hookFunc) != 'function'){
-                            throw `"${hook.name}" is not a function`;// TODO check params
+                            throw `[error initializing js sandbox] "${hook.name}" is not a function`;// TODO check params
                         }
                     }
                 },
@@ -236,7 +236,16 @@ define(['esper', 'skulpt'], function(esper, skulpt){
                     }
                     this.defFunc('print', [null], log);
                     evalSync(code);
-                    // TODO check hooks
+                    // check hooks
+                    for (var i = 0; i < this.hooks.length; i++){
+                        var hook = this.hooks[i];
+                        try {
+                            evalSync(hook.name);
+                        }
+                        catch(e){
+                            throw('[error initializing py sandbox] hook not defined : ' + hook.name);
+                        }
+                    }
                 },
                 callHook : function(name, params){
                     var paramsStr = [];
@@ -332,6 +341,20 @@ float getFloat(char* query){
     return res;
 }
 
+double getDouble(char* query){
+    double res;
+    printf("$gd:%s", query);
+    scanf("%f", &res);
+    return res;
+}
+
+int getInt(char* query){
+    int res;
+    printf("$gi:%s", query);
+    scanf("%i", &res);
+    return res;
+}
+
 ${funcsDef}
 
 `;
@@ -368,8 +391,16 @@ void main(){
                 globals : {},
                 defGlobal : function(key, template){
                     if (typeof(template) == 'object'){
-                        for (var k in template) {
-                            this.defGlobal(key + '.' + k, template[k]);
+                        if (template instanceof Array){
+                            this.defGlobal(key + '.length', template.length);
+                            for (var i = 0; i < template.length; i++){
+                                this.defGlobal(key + `[${i}]`, template[i]);
+                            }
+                        }
+                        else{
+                            for (var k in template) {
+                                this.defGlobal(key + '.' + k, template[k]);
+                            }
                         }
                     }
                     else if (typeof(template) == 'number'){ //currently only numbers are allowed
@@ -395,7 +426,6 @@ void main(){
                 },
                 init : function(code){
                     var that = this;
-                    // TODO check hooks
                     // override standard log func
                     var log = function(m){
                         if (that.onStdout != null){
@@ -414,11 +444,31 @@ void main(){
                             },
                             write: function(s) {
                                 //console.log('cppoutput: ' + s)
-                                if (s.startsWith('$gf:')){
+                                if (s.startsWith('$gf:')){ // float
                                     var id = s.replace('$gf:', '');
                                     //console.log('c requiring global : ' + id);
                                     if (that.globals.hasOwnProperty(id)) {
-                                        fstr.setLoop(that.globals[id] + '\n');
+                                        fstr.setLoop(that.globals[id].toFixed(6) + '\n');
+                                    }
+                                    else{
+                                        throw "no such variable : " + id;
+                                    }
+                                }
+                                else if (s.startsWith('$gd:')){ // double
+                                    var id = s.replace('$gd:', '');
+                                    //console.log('c requiring global : ' + id);
+                                    if (that.globals.hasOwnProperty(id)) {
+                                        fstr.setLoop(that.globals[id].toFixed(12) + '\n');
+                                    }
+                                    else{
+                                        throw "no such variable : " + id;
+                                    }
+                                }
+                                else if (s.startsWith('$gi:')){ // int
+                                    var id = s.replace('$gi:', '');
+                                    //console.log('c requiring global : ' + id);
+                                    if (that.globals.hasOwnProperty(id)) {
+                                        fstr.setLoop(Math.floor(that.globals[id]).toFixed(0) + '\n');
                                     }
                                     else{
                                         throw "no such variable : " + id;
@@ -463,6 +513,16 @@ void main(){
                     };
                     // run to the first loop
                     mydebugger.continue();
+                    // check hooks
+                    for (var k in this.hooks){
+                        var hook = this.hooks[k];
+                        try {
+                            var hookFunc = mydebugger.variable(hook.name);
+                        }
+                        catch(e){
+                            throw('[error initializing cpp sandbox] hook not defined : ' + hook.name);
+                        }
+                    }
                     
                     this.internal = mydebugger;
                 },

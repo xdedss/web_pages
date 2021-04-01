@@ -15,7 +15,8 @@ $(function(){
         ev.initMouseEvent("click", true, false, window, 0, 0, 0, 0, 0, false, false, false, false, 0, null);
         obj.dispatchEvent(ev);
     }
-
+    
+    // 给用户下载文本文件
     function exportRaw(name, data) {
         var urlObject = window.URL || window.webkitURL || window;
         var export_blob = new Blob([data]);
@@ -24,7 +25,8 @@ $(function(){
         save_link.download = name;
         fakeClick(save_link);
     }
-
+    
+    // 请求用户上传文件
     function importRaw(onload, accept) {
         var ele = $('#fileselect')[0];
         $('#fileselect').val('').attr('accept', accept);
@@ -176,6 +178,9 @@ $(function(){
                     ui.log('level reset', 1);
                     currentLevel.reset();
                     changedExec.set(true);
+                    // workaround To be optimized!!
+                    if (matter.engine.paused) ui.markStatus(1, 'paused');
+                    else ui.markStatus(0, 'running');
                 }
             });
             
@@ -382,6 +387,7 @@ $(function(){
             // exit prompt
             window.onbeforeunload = function(e) {
                 cacheCurrentCode();
+                storage.misc.save('lastlang', currentLang);
                 if (changedSave.get()){
                     // Cancel the event
                     e.preventDefault();
@@ -396,7 +402,9 @@ $(function(){
             // load level according to url
             var p = getParams();
             var getLevelName = p['level'];
-            //console.log('levelname ' + getLevelName);
+            var getLangName = p['lang'];
+            currentLang = getLangName || storage.misc.load('lastlang');
+            console.log(currentLang);
             loadLevelAuto(getLevelName);
             
             // open help

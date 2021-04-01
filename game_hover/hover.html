@@ -51,7 +51,7 @@
             }
             
             .btn-group {
-                margin-bottom : 2px;
+                -margin-bottom : 2px;
             }
             
             .noleft {
@@ -195,7 +195,7 @@
                         <!--编辑器右侧按钮-->
                         <div class="btn-group float-right">
                             <button class="btn" id="btn-clearconsole"><i class="icon icon-delete"></i>清空控制台</button>
-                            <button class="btn btn-primary" id="btn-run"><i class="icon icon-forward"></i>执行代码</button>
+                            <button class="btn btn-primary" id="btn-run"><i class="icon icon-forward"></i>提交代码</button>
                         </div>
                         <!--编辑器容器-->
                         <div id="jseditor">
@@ -206,7 +206,7 @@
                     <div class="column col-auto">
                         <!--左侧按钮-->
                         <div class="btn-group">
-                            <button class="btn" id="btn-resetsim"><i class="icon icon-refresh"></i>重新模拟</button>
+                            <button class="btn" id="btn-resetsim"><i class="icon icon-refresh"></i>重置模拟</button>
                             <button class="btn" id="btn-pause">▍▍ 暂停</button>
                             <button class="btn" id="btn-resume">▶ 恢复</button>
                         </div>
@@ -244,9 +244,11 @@
                 <div class="modal-body">
                     <div class="content">
                         <p>按F1或页面右上角按钮可以打开此帮助页面🤔</p>
+                        
                         <h4>关于此应用</h4>
                         <p>这是一个通用的编程游戏框架，可以模块化地加载不同的场景，让用户在编辑器里编写代码来控制物理模拟中的物体。</p>
-                        <p>目前支持三种语言：javascript、python3和c++。其中python仅支持有限的包（math等），c++仅支持基本类型和有限的头文件（具体请看JSCPP的readme）</p>
+                        <p>目前支持三种语言：javascript、python3和c++。其中python仅支持有限的包（math等）；
+                            c++仅支持基本语法和有限的头文件（不能定义class、struct，不支持模板等，具体请看JSCPP的<a href="https://github.com/felixhao28/JSCPP#which-features-are-implemented" target="_blank">readme</a>）</p>
                         <p>代码均在本地浏览器中的沙箱里执行。</p>
                         <h4>操作说明：</h4>
                         <ul class="list">
@@ -254,12 +256,25 @@
                             <li>加载：从本地上传代码文本文件，快捷键ctrl+o</li>
                             <li>清空代码：重置回当前场景的默认示例代码</li>
                             <li>场景信息：查看由场景提供的文档</li>
-                            <li>场景：切换场景并重新初始化</li>
+                            <li>切换语言：切换编程语言</li>
+                            <li>切换场景：切换场景并重新初始化</li>
                             <li>清空控制台：清除虚拟控制台里的所有调试信息</li>
-                            <li>执行代码：将当前编辑区的代码传入物理引擎中执行（不会重置物理引擎）</li>
+                            <li>提交代码：将当前编辑区的代码传入物理引擎中执行（不会重置物理引擎）</li>
                             <li>重置模拟：将物理引擎中所有物体重设回初始状态（不会重新加载代码）</li>
                             <li>暂停/恢复：暂停/恢复物理引擎</li>
                         </ul>
+                        
+                        <h4>Tips</h4>
+                        <h5>场景信息和全局变量</h5>
+                        <p>不同的场景可能有不同的全局变量定义和具体操作方式，请在切换场景后点击场景信息按钮查看。</p>
+                        <p>通常js中的全局变量直接以js对象定义，可以用形如vessel.velocity.x的方式获取；
+                            python中是以字典形式定义，可以用形如vessel['velocity']['x']的方式获取；
+                            c++中没有直接定义全局变量，而是提供了一个获取全局变量的函数，可以用形如getFloat("vessel.velocity.x")的方式获取所需变量。</p>
+                        <h5>错误定位</h5>
+                        <p>如果代码运行过程中出错，双击控制台的错误信息可以让编辑器光标跳转到错误位置（仅限js和python）。</p>
+                        <h5>改动标记</h5>
+                        <p>在保存和执行代码两个按钮上有时会出现蓝点，表示当前代码相对于上一次保存或执行有没有改动。改动的代码必须再次点击运行才会进入模拟；未保存的代码在刷新或切换场景时会消失，请注意及时保存代码。</p>
+                        
                         <h4>制作自定义场景</h4>
                         <p>请参考<a href="https://gitee.com/xdedss/web_pages/blob/master/game_hover/levels/starhopper.js" target="_blank">starhopper场景</a>的源码</p>
                         <p>首先，每个场景是由一个包含AMD(Asynchronous Module Definition)的.js文件来定义的。在define的参数中指定依赖项，在回调函数中用参数接收依赖项（其中level是必须的，因为Level是场景的父类）。</p>
@@ -279,13 +294,6 @@
                         </ul>
                         <p>最后return这个类即可</p>
                         <p>将写好的代码存成.js文件，文件名命名为场景名，点击场景-添加并上传文件</p>
-                        <h4>Tips</h4>
-                        <h5>改动标记</h5>
-                        <p>在保存和执行代码两个按钮上有时会出现蓝点，表示当前代码相对于上一次保存或执行有没有改动。改动的代码必须再次点击运行才会进入模拟；未保存的代码在刷新或切换场景时会消失，请注意及时保存代码。</p>
-                        <h5>场景信息</h5>
-                        <p>不同的场景可能有不同的变量定义和具体操作方式，请在切换场景后点击场景信息按钮查看。</p>
-                        <h5>错误定位</h5>
-                        <p>如果代码运行过程中出错，双击控制台的错误信息可以让编辑器光标跳转到错误位置。</p>
                         <h4>Powered by</h4>
                         <a class="btn btn-link" href="https://picturepan2.github.io/spectre/index.html" target="_blank">Spectre</a>/
                         <a class="btn btn-link" href="https://codemirror.net/" target="_blank">CodeMirror</a>/

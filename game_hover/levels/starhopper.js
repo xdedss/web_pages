@@ -3,7 +3,10 @@
 // demo场景
 
 
-define(['level', 'levels/utils/launchpads', 'sandbox-wrap', 'image!levels/res/watertower.png', 'image!levels/res/plume.png'], function(Level, launchpads, SandboxWrap){
+define([
+    'level', 'levels/utils/launchpads', 'sandbox-wrap', 
+    'image!levels/res/watertower.png', 'image!levels/res/watertower_d.png', 'image!levels/res/plume.png'
+], function(Level, launchpads, SandboxWrap){
     
     function setSprite(body, srcSize, tgtSize, path){
         body.render.sprite.texture = path;
@@ -34,9 +37,11 @@ define(['level', 'levels/utils/launchpads', 'sandbox-wrap', 'image!levels/res/wa
         return { x : x, y : -y};
     }
     
+    const massUnit = 100000;
+    // N = kg * m / s^2
     const maxGimbal = 15 * Math.PI / 180;
-    const maxThrust = 1500 * 1000;
-    const mass = 100 * 1000;
+    const maxThrust = 1500 * 1000 / massUnit;
+    const mass = 100 * 1000 / massUnit;
     const frictionAir = 0.001;
     const plumeOffset = 4;
     const rocketHeight = 12;
@@ -53,9 +58,8 @@ define(['level', 'levels/utils/launchpads', 'sandbox-wrap', 'image!levels/res/wa
             // Rocket
             this.scene.rocket = Matter.Bodies.rectangle(0, 0, rocketWidth, rocketHeight, {
                 frictionAir : frictionAir,
-                friction : 0.5,
+                friction : 0.8,
             });
-            setSprite(this.scene.rocket, 111, rocketHeight, 'levels/res/watertower.png');
             Matter.Body.setMass(this.scene.rocket, mass);
             // Plume
             this.scene.plume = Matter.Bodies.rectangle(0, 2, 1, 1, {
@@ -68,9 +72,30 @@ define(['level', 'levels/utils/launchpads', 'sandbox-wrap', 'image!levels/res/wa
             setSprite(this.scene.plume, 32, 4, 'levels/res/plume.png');
             this.scene.plume.render.sprite.yOffset = 0;
             
+            // marker
+            this.scene.marker = Matter.Bodies.circle(-100, 0, 2, {
+                isStatic : true,
+                render : { 
+                    fillStyle : '#f00',
+                    opacity : 0.5,
+                },
+                collisionFilter : {
+                    mask : 0
+                },
+                zindex : 1,
+            });
+            
             // cam limit
             this.matter.engine.camLimit.maxSize = 200;
             this.matter.engine.camLimit.minSize = 30;
+            
+            // mouse
+            ((that) => {
+                this._mousemove = function(event) {
+                    that.mousePosition = event.mouse.position;
+                };
+            })(this);
+            Matter.Events.on(this.matter.mConstraint, "mousemove", this._mousemove);
             
         }
         
@@ -95,6 +120,7 @@ define(['level', 'levels/utils/launchpads', 'sandbox-wrap', 'image!levels/res/wa
             Matter.Body.setAngle(this.scene.rocket, 0);
             Matter.Body.setVelocity(this.scene.rocket, {x:0, y:0});
             Matter.Body.setAngularVelocity(this.scene.rocket, 0)
+            setSprite(this.scene.rocket, 111, rocketHeight, 'levels/res/watertower.png');
             
             if (pauseFlag){
                 engine.pause();
@@ -103,8 +129,16 @@ define(['level', 'levels/utils/launchpads', 'sandbox-wrap', 'image!levels/res/wa
             this.scene.plume.render.sprite.targetSize(0);
             
             this.isDestroyed = false;
+            this.mousePosition = {x : 0, y : 0};
+            
+            Matter.Body.setPosition(this.scene.marker, {x : -100, y : 0});
+            this.marker = {x : -100, y : 0};
 
             this.sandbox = null;
+        }
+        
+        destruct(){
+            Matter.Events.off(this.matter.mConstraint, "mousemove", this._mousemove);
         }
         
         // 物理帧
@@ -125,10 +159,11 @@ define(['level', 'levels/utils/launchpads', 'sandbox-wrap', 'image!levels/res/wa
                         velocity : vel,
                         angle : Math.PI / 2 - this.scene.rocket.angle,
                         angularVelocity : -this.scene.rocket.angularVelocity * 60,
-                        mass : this.scene.rocket.mass,
-                        maxThrust : maxThrust,
+                        mass : this.scene.rocket.mass * massUnit,
+                        maxThrust : maxThrust * massUnit,
                         maxGimbal : maxGimbal,
                     });
+                    this.sandbox.setGlobal('mouse', icoor(this.mousePosition));
                     this.sandbox.setGlobal('time', this.time);
                     this.sandbox.setGlobal('dt', 1/60);
                     // try update
@@ -161,6 +196,11 @@ define(['level', 'levels/utils/launchpads', 'sandbox-wrap', 'image!levels/res/wa
                 Matter.Body.applyForce(this.scene.rocket, this.scene.plume.position, 
                     { x : this.throttle * maxThrust * Math.sin(plumeRot) * 1e-6, y : -this.throttle * maxThrust * Math.cos(plumeRot) * 1e-6 });
                 
+                // marker
+                this.marker.x = (isNaN(this.marker.x) || this.marker.x == null) ? -100 : this.marker.x;
+                this.marker.y = (isNaN(this.marker.y) || this.marker.y == null) ? -100 : this.marker.y;
+                Matter.Body.setPosition(this.scene.marker, icoor(this.marker));
+                
             }
         }
         
@@ -178,6 +218,7 @@ define(['level', 'levels/utils/launchpads', 'sandbox-wrap', 'image!levels/res/wa
                         var vi = this.scene.rocket.speed * 60;
                         if (vi > 5){
                             ui.log('vessel destroyed, impact velocity = ' + vi, 1);
+                            setSprite(this.scene.rocket, 111, rocketHeight, 'levels/res/watertower_d.png');
                             this.isDestroyed = true;
                         }
                         console.log(vi);
@@ -210,6 +251,7 @@ define(['level', 'levels/utils/launchpads', 'sandbox-wrap', 'image!levels/res/wa
                 this.sandbox.onStdout = log;
                 this.sandbox.defFunc('setThrottle', [0.1], v => this.throttle = v);
                 this.sandbox.defFunc('setGimbal', [0.1], v => this.gimbal = v);
+                this.sandbox.defFunc('setMarker', [0.1, 0.1], (x, y) => this.marker = {x, y});
                 try{
                     this.sandbox.init(code);
                 }
@@ -254,7 +296,7 @@ void update(){
         
         // 场景描述，会显示在场景信息里面
         desc =  `
-<p>这是一个demo场景，只是一个沙盒，没有设置目标，在这里你可以通过setThrottle和setGimbal控制一个<del>水塔</del>火箭起飞、悬停和降落。</p>
+<p>这是一个demo场景，只是一个沙盒，没有设置目标，没有燃料限制，在这里你可以通过setThrottle和setGimbal控制一个<del>水塔</del>火箭起飞、悬停和降落。</p>
 <p>每个物理帧会调用一次代码中的update函数，可以通过全局变量获取火箭当前的状态，计算并施加节流阀和推力矢量的控制。</p>
 <p>碰撞速度大于5m/s会导致<b>Rapid Unscheduled Disassembly</b></p>`;
         // 全局变量描述
@@ -276,6 +318,20 @@ void update(){
                     throttle : {
                         type : 'float',
                         desc : '节流阀百分比，0表示无推力，1表示最大推力',
+                    },
+                },
+            },
+            setMarker : {
+                type : 'function',
+                desc : '在画面上指定位置显示一个圆形标记，可以用来debug',
+                params : {
+                    x : {
+                        type : 'float',
+                        desc : 'x坐标',
+                    },
+                    y : {
+                        type : 'float',
+                        desc : 'x坐标',
                     },
                 },
             },
@@ -326,6 +382,26 @@ void update(){
                     maxGimbal : {
                         type : 'float',
                         desc : '发动机喷口最大偏转角度，单位rad',
+                    },
+                },
+            },
+            time : {
+                type : 'float',
+                desc : '从场景重置开始经过的时间，单位秒',
+            },
+            dt : {
+                type : 'float',
+                desc : '一帧的时间间隔，一般是固定值1/60秒',
+            },
+            mouse : {
+                type : 'vector',
+                desc : '鼠标的坐标',
+                children : {
+                    x : {
+                        type : 'float',
+                    },
+                    y : {
+                        type : 'float',
                     },
                 },
             },
