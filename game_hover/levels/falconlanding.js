@@ -262,11 +262,11 @@ define([
                 }
                 
                 // plume
-                this.scene.plume.render.sprite.targetSize(lerp(0, 5, this.throttle));
                 var rocketPos = this.scene.rocket.position;
                 var rocketRot = this.scene.rocket.angle;
                 var plumeRot = rocketRot + lerp(0, maxGimbal, this.gimbal);
                 var thrust = clamp(this.throttle * maxThrust, 0, (this.scene.rocket.mass - dryMass) * Isp / (1/60)); // thrust = 0 if theres no fuel
+                this.scene.plume.render.sprite.targetSize(lerp(0, 5, thrust / maxThrust));
                 var newMass = this.scene.rocket.mass - 1/60 * thrust / Isp;//console.log(newMass);
                 Matter.Body.setPosition(this.scene.plume, { 
                     x : rocketPos.x + this.scene.rocket.velocity.x - (plumeOffset - centerOffset) * Math.sin(rocketRot), 
@@ -284,7 +284,7 @@ define([
                 Matter.Body.setPosition(this.scene.marker, icoor(this.marker));
                 
                 // check landed
-                if (this.throttle == 0 && Math.abs(this.scene.rocket.speed) < 0.01){
+                if ((!this.isDestroyed) && this.throttle == 0 && Math.abs(this.scene.rocket.speed) < 0.01){
                     this.landedCounter++;
                     if (this.landedCounter >= 30 && !this.landed){
                         this.landed = true;
