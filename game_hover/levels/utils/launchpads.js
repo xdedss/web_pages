@@ -16,20 +16,24 @@ define(['image!levels/res/launchpads.png'], function(){
         };
     }
     
-    const bgImg = 'levels/res/launchpads.png';
-    const originalH = 1920;
-    const originalW = 1920;
-    const bgWidth = 500;
-    const bgHeight = 500 * originalH / originalW;
-    const groundLevel = 76 * bgHeight / originalH;
-    const minX = 1;
-    const maxX = bgWidth - 1;
-    const minY = -bgHeight + 1 + groundLevel;
-    const maxY = groundLevel - 1;
     
-    var setup = function(self) {
+    var setup = function(self, borderHeight) {
+        
+        if (borderHeight === undefined) borderHeight = 500;
+        const bgImg = 'levels/res/launchpads.png';
+        const originalH = 1920;
+        const originalW = 1920;
+        const bgWidth = 500;
+        const bgHeight = 500 * originalH / originalW;
+        //const borderHeight = 1000;
+        const groundLevel = 76 * bgHeight / originalH;
+        const minX = 1;
+        const maxX = bgWidth - 1;
+        const minY = -borderHeight + 1 + groundLevel;
+        const maxY = groundLevel - 1;
+        
         ((function(){
-            this.scene.background = Matter.Bodies.rectangle(500 / 2, -bgHeight / 2 + groundLevel, bgWidth, bgHeight, {
+            this.scene.background = Matter.Bodies.rectangle(bgWidth / 2, -bgHeight / 2 + groundLevel, bgWidth, bgHeight, {
                 isStatic : true,
                 collisionFilter : {
                     mask : 0
@@ -37,16 +41,26 @@ define(['image!levels/res/launchpads.png'], function(){
                 zindex : -10,
             })
             setSprite(this.scene.background, originalW, bgWidth, bgImg);
+            this.scene.backgroundcolor = Matter.Bodies.rectangle(bgWidth / 2, -borderHeight / 2 , bgWidth, borderHeight, {
+                isStatic : true,
+                render : {
+                    fillStyle : '#4580f0',
+                },
+                collisionFilter : {
+                    mask : 0
+                },
+                zindex : -20,
+            })
             
             // background and walls
             this.scene.ground = Matter.Bodies.rectangle(bgWidth / 2, 100, bgWidth + 200, 200, {
                 isStatic : true,
                 render : { 
-                    fillStyle : 'none',
+                    fillStyle : 'transparent',
                 },
                 friction : 0.8,
             });
-            this.scene.lborder = Matter.Bodies.rectangle(-100, -bgHeight / 2, 200, bgHeight, {
+            this.scene.lborder = Matter.Bodies.rectangle(-100, -borderHeight / 2, 200, borderHeight, {
                 isStatic : true,
                 isSensor : true,
                 render : { 
@@ -55,7 +69,7 @@ define(['image!levels/res/launchpads.png'], function(){
                 friction : 0.0,
                 isBorder : true,
             });
-            this.scene.rborder = Matter.Bodies.rectangle(bgWidth+100, -bgHeight / 2, 200, bgHeight, {
+            this.scene.rborder = Matter.Bodies.rectangle(bgWidth+100, -borderHeight / 2, 200, borderHeight, {
                 isStatic : true,
                 isSensor : true,
                 render : { 
@@ -64,7 +78,7 @@ define(['image!levels/res/launchpads.png'], function(){
                 friction : 0.0,
                 isBorder : true,
             });
-            this.scene.uborder = Matter.Bodies.rectangle(bgWidth / 2, -bgHeight + groundLevel - 100, bgWidth + 200, 200, {
+            this.scene.uborder = Matter.Bodies.rectangle(bgWidth / 2, -borderHeight + groundLevel - 100, bgWidth + 200, 200, {
                 isStatic : true,
                 isSensor : true,
                 render : { 

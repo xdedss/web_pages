@@ -404,7 +404,7 @@ $(function(){
             var getLevelName = p['level'];
             var getLangName = p['lang'];
             currentLang = getLangName || storage.misc.load('lastlang');
-            console.log(currentLang);
+            console.log('language : ' + currentLang);
             loadLevelAuto(getLevelName);
             
             // open help
