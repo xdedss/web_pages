@@ -80,6 +80,7 @@ define([], function(){
         };
         
         var logError = function(m) {
+            markStatus('2', 'error');
             log(m.toString(), 2, e => {
                 listeners.invoke('traceerror', m);
             });
@@ -138,6 +139,7 @@ define([], function(){
             return res;
         }
         var setHelp = function(level, lang) {
+            //console.log(lang);
             switch(lang){
                 case 'js':
                 case 'cpp':
@@ -175,6 +177,7 @@ define([], function(){
         // 更新场景列表
         var listLevel = function(levelList, extraLevelList){
             $('#levellist').html('');
+            $('#levellist').append('<li class="divider" data-content="Built-in"></li>');
             for (var i = 0; i < levelList.length; i++){
                 var lname = levelList[i];
                 var ele = $(`<li class="menu-item" levelname="${lname}"><a href="#">${lname}</a></li>`);

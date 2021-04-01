@@ -129,12 +129,16 @@ define(['esper', 'skulpt'], function(esper, skulpt){
                         var hook = this.hooks[i];
                         var hookFunc = sandbox.evalSync(hook.name).toNative();
                         if (typeof(hookFunc) != 'function'){
-                            throw `"${hook.name}" is not a function`;
+                            throw `"${hook.name}" is not a function`;// TODO check params
                         }
                     }
                 },
                 callHook : function(name, params){
-                    sandbox.evalSync(name + '()');
+                    var paramsStr = [];
+                    for (var i = 0; i < params.length; i++){
+                        paramsStr[i] = JSON.stringify(params[i]);
+                    }
+                    sandbox.evalSync(name + '(' + paramsStr.join(', ') + ')'); 
                 },
             };
         },
@@ -232,14 +236,17 @@ define(['esper', 'skulpt'], function(esper, skulpt){
                     }
                     this.defFunc('print', [null], log);
                     evalSync(code);
+                    // TODO check hooks
                 },
                 callHook : function(name, params){
-                    evalSync(name + '()');
+                    var paramsStr = [];
+                    for (var i = 0; i < params.length; i++){
+                        paramsStr[i] = Sk.ffi.remapToPy(params[i]).toString();
+                    }
+                    evalSync(name + '(' + paramsStr.join(', ') + ')');
                 },
             };
         },
-        // 注意统一exception格式
-        // 处理js-python类型转换问题
         
         // must add all globals before init
         createCpp : function(){
@@ -285,17 +292,22 @@ define(['esper', 'skulpt'], function(esper, skulpt){
                     var paramsInPrintf = [];
                     for (var i = 0; i < func.params.length; i++){
                         var paramTemplate = func.params[i];
-                        if (Math.floor(paramTemplate) == paramTemplate){
-                            //int
-                            paramsInC.push('p' + i);
-                            paramsInFunc.push('int p' + i);
-                            paramsInPrintf.push('%d');
+                        if (typeof(paramTemplate) == 'number'){
+                            if (Math.floor(paramTemplate) == paramTemplate){
+                                //int
+                                paramsInC.push('p' + i);
+                                paramsInFunc.push('int p' + i);
+                                paramsInPrintf.push('%d');
+                            }
+                            else{
+                                //float
+                                paramsInC.push('p' + i);
+                                paramsInFunc.push('float p' + i);
+                                paramsInPrintf.push('%f');
+                            }
                         }
-                        else{
-                            //float
-                            paramsInC.push('p' + i);
-                            paramsInFunc.push('float p' + i);
-                            paramsInPrintf.push('%f');
+                        else {
+                            throw "function parameter type of " + paramTemplate + " is not supported by c++ call";
                         }
                     }
                     funcsDef += '\n';
@@ -309,10 +321,9 @@ define(['esper', 'skulpt'], function(esper, skulpt){
                     funcsDef += '\n';
                 }
                 
-                return `
+                var prefix = `
 #include <stdio.h>
 #include <stdlib.h>
-using namespace std;
 
 float getFloat(char* query){
     float res;
@@ -323,7 +334,8 @@ float getFloat(char* query){
 
 ${funcsDef}
 
-${code}
+`;
+                var suffix = `
 
 void loop() {
     int cmd;
@@ -343,6 +355,9 @@ void main(){
     }
 }
                 `;
+                
+                return prefix + code + suffix;
+
             }
             
             var hookId = 0;
@@ -380,6 +395,7 @@ void main(){
                 },
                 init : function(code){
                     var that = this;
+                    // TODO check hooks
                     // override standard log func
                     var log = function(m){
                         if (that.onStdout != null){

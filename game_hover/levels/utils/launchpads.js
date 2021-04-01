@@ -48,6 +48,7 @@ define([], function(){
             });
             this.scene.lborder = Matter.Bodies.rectangle(-100, -bgHeight / 2, 200, bgHeight, {
                 isStatic : true,
+                isSensor : true,
                 render : { 
                     fillStyle : 'none',
                 },
@@ -56,6 +57,7 @@ define([], function(){
             });
             this.scene.rborder = Matter.Bodies.rectangle(bgWidth+100, -bgHeight / 2, 200, bgHeight, {
                 isStatic : true,
+                isSensor : true,
                 render : { 
                     fillStyle : 'none',
                 },
@@ -64,6 +66,7 @@ define([], function(){
             });
             this.scene.uborder = Matter.Bodies.rectangle(bgWidth / 2, -bgHeight + groundLevel - 100, bgWidth + 200, 200, {
                 isStatic : true,
+                isSensor : true,
                 render : { 
                     fillStyle : 'none',
                 },

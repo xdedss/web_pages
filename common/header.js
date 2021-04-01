@@ -1,5 +1,15 @@
 $(function(){
     
+    $('head').append(`<style>
+.navbar{
+    background: #fff;
+    margin-left: 10px;
+}
+
+.navbar .text-center{
+    background: #fff;
+}
+    </style>`);
     $('header').html(`
             <section class="navbar-section">
                 <a class="navbar-brand text-bold mr-2 hide-xs" href="../index.html">前端实验室</a>

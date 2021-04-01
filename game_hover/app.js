@@ -31,10 +31,12 @@ $(function(){
         ele.onchange = function (e) {
             //console.log(ele.files);
             if (ele.files != null && ele.files.length > 0){
+                var fname = ele.files[0].name;
+                fname = fname.substr(0, fname.lastIndexOf('.'));
                 var reader = new FileReader();
                 reader.onload = function() {
                     if(reader.result) {
-                        onload(reader.result);
+                        onload(reader.result, fname);
                     }
                 };
                 reader.readAsText(ele.files[0]);
@@ -59,7 +61,7 @@ $(function(){
         return res;
     }
     
-    class ChangedValue{
+    class ChangedValue { // 监听变化的值
         constructor(initial, onchange){
             this.cache = initial;
             this.onchange = onchange;
@@ -83,6 +85,7 @@ $(function(){
             
             //loaded
             console.log('loaded');
+            window.storage = storage;
             
             // params
             var globalDebug = true;
@@ -99,6 +102,7 @@ $(function(){
             var editor = CodeMirrorSetup($('#jseditor')[0], $('#editorframe').width(), height);
             var ui = UISetup();
             ui.markLoading(false);
+            
             // 运行的代码有没有改动
             var changedSave = new ChangedValue(false, (prev, next) => {
                 ui.markSave(next);
@@ -169,7 +173,7 @@ $(function(){
             
             ui.on('resetsim', function(){
                 if (currentLevel != null){
-                    ui.log('level reset');
+                    ui.log('level reset', 1);
                     currentLevel.reset();
                     changedExec.set(true);
                 }
@@ -227,7 +231,12 @@ $(function(){
             });
             ui.on('addlevel', function(lname){
                 //storage.level.save('test', 'foo');
-                console.log('not implemented');
+                //console.log('not implemented');
+                importRaw((code, fname) => {
+                    storage.level.save(fname, code);
+                    levelNamesExtra.push(fname);
+                    ui.listLevel(levelNamesBuiltin, levelNamesExtra);
+                }, '.js');
             });
             
             // lang switch ui
@@ -307,7 +316,6 @@ $(function(){
                     
                     ui.log('[LoadLevel] level "' + name + '" loaded', 3);
                     
-                    
                     //debug
                     if (globalDebug){
                         window.ui = ui;
@@ -325,7 +333,43 @@ $(function(){
             function loadLevelExtra(name){
                 var levelCode = storage.level.load(name);
                 console.log(levelCode);
-                console.log('not implemented');
+                console.log('loading level extra ' + name);
+                var prevName = 'none';
+                if (currentLevel != null){
+                    prevName = currentLevel.name;
+                    matter.engine.resume();
+                    currentLevel.terminate();
+                    currentLevel = null;
+                }
+                requirejs(['load-string!' + levelCode], function(Level){
+                    
+                    level = new Level({ui, matter});
+                    level.name = name;
+                    currentLevel = level;
+                    // set editor content
+                    setLang(currentLang || 'js');
+                    // set documentations
+                    ui.setHelp(level, currentLang);
+                    // hide self
+                    //ui.listLevel();
+                    ui.markLevel(name);
+                    
+                    ui.log('[LoadLevel] level "' + name + '" loaded', 3);
+                    
+                    //debug
+                    if (globalDebug){
+                        window.ui = ui;
+                        window.level = level;
+                        window.editor = editor;
+                        window.matter = matter;
+                    }
+                }, function(e){ // error
+                    ui.log('[LoadLevel] can not load extra level "' + name + '". see F12 console for more information', 2);
+                    console.log(e);
+                    //ui.listLevel();
+                    //ui.markLevel(prevName);
+                });
+                
             }
             
             // local storage
@@ -355,6 +399,7 @@ $(function(){
             //console.log('levelname ' + getLevelName);
             loadLevelAuto(getLevelName);
             
+            // open help
             if (storage.isFirstOpen()){
                 console.log('first');
                 location.hash = 'help';

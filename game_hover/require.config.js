@@ -15,8 +15,9 @@ require.config({
         //"jspython" : "https://cdn.jsdelivr.net/npm/jspython-interpreter@2.1.3/dist/jspython-interpreter.min",
         "skulpt" : "lib/sk.merge",
         //"jscpp" : "https://cdn.jsdelivr.net/npm/JSCPP@2.0.6/dist/JSCPP.es5",
-        //"pegjs-util" : "https://cdn.jsdelivr.net/npm/pegjs-util@1.4.21/PEGUtil.min",
         "level" : "levels/utils/level",
+        "load-string" : "lib/load-string",
+        "image" : "lib/image",
     }
 });
 

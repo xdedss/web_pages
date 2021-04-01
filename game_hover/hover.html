@@ -31,25 +31,15 @@
             margin: 0; 
             padding: 0;
             }
-            body { 
-                -overflow: overlay
-            }
+            
 
-            #intro{
+            #main{
                 background: #fff;
                 -position: absolute;
                 width: auto;
                 padding: 20px;
             }
 
-            .navbar{
-                background: #fff;
-                margin-left: 10px;
-            }
-
-            .navbar .text-center{
-                background: #fff;
-            }
 
             .center {
                 text-align: center;
@@ -71,7 +61,7 @@
             }
             
             #loaded-container{
-                display : none;
+                -display : none;
             }
             
             #world{
@@ -152,13 +142,13 @@
         <header class="navbar">
         </header>
         
-        
-        <div id="intro">
+        <!--UI-->
+        <div id="main">
             <!--标题-->
             <h3>Coding Games 
                 <div class="btn-group float-right">
                     <a class="btn btn-link" href="#help" id="btn-help">帮助</a> 
-                    <a class="btn btn-link" href="https://gitee.com/xdedss/web_pages" target="_blank">Source</a> 
+                    <a class="btn btn-link" href="https://gitee.com/xdedss/web_pages/tree/master/game_hover" target="_blank">Source</a> 
                 </div>
             </h3>
             <!--加载界面-->
@@ -258,7 +248,7 @@
                         <p>这是一个通用的编程游戏框架，可以模块化地加载不同的场景，让用户在编辑器里编写代码来控制物理模拟中的物体。</p>
                         <p>目前支持三种语言：javascript、python3和c++。其中python仅支持有限的包（math等），c++仅支持基本类型和有限的头文件（具体请看JSCPP的readme）</p>
                         <p>代码均在本地浏览器中的沙箱里执行。</p>
-                        <h5>操作说明：</h5>
+                        <h4>操作说明：</h4>
                         <ul class="list">
                             <li>保存：将当前编辑的代码以文件形式下载，快捷键ctrl+s</li>
                             <li>加载：从本地上传代码文本文件，快捷键ctrl+o</li>
@@ -270,14 +260,33 @@
                             <li>重置模拟：将物理引擎中所有物体重设回初始状态（不会重新加载代码）</li>
                             <li>暂停/恢复：暂停/恢复物理引擎</li>
                         </ul>
-                        <h5>Tips</h5>
-                        <h6>改动标记</h6>
+                        <h4>制作自定义场景</h4>
+                        <p>请参考<a href="https://gitee.com/xdedss/web_pages/blob/master/game_hover/levels/starhopper.js" target="_blank">starhopper场景</a>的源码</p>
+                        <p>首先，每个场景是由一个包含AMD(Asynchronous Module Definition)的.js文件来定义的。在define的参数中指定依赖项，在回调函数中用参数接收依赖项（其中level是必须的，因为Level是场景的父类）。</p>
+                        <p>随后需要定义一个类继承Level类，至少实现以下方法：</p>
+                        <ul class="list">
+                            <li>init() 在场景加载时被调用</li>
+                            <li>reset() 在用户点击重置场景时被调用</li>
+                            <li>tick() 在物理帧时被调用</li>
+                            <li>onCollision() 在发生碰撞时被调用</li>
+                            <li>exec(code, langtype) 在用户提交代码时被调用，code为代码文本，langtype为语言('js', 'py' 或 'cpp')</li>
+                        </ul>
+                        <p>还需要设置以下属性：</p>
+                        <ul class="list">
+                            <li>template 给出各种语言的示例代码</li>
+                            <li>desc 显示在场景信息里的描述文字（html）</li>
+                            <li>documentation 描述全局变量的类型、说明和结构</li>
+                        </ul>
+                        <p>最后return这个类即可</p>
+                        <p>将写好的代码存成.js文件，文件名命名为场景名，点击场景-添加并上传文件</p>
+                        <h4>Tips</h4>
+                        <h5>改动标记</h5>
                         <p>在保存和执行代码两个按钮上有时会出现蓝点，表示当前代码相对于上一次保存或执行有没有改动。改动的代码必须再次点击运行才会进入模拟；未保存的代码在刷新或切换场景时会消失，请注意及时保存代码。</p>
-                        <h6>场景信息</h6>
+                        <h5>场景信息</h5>
                         <p>不同的场景可能有不同的变量定义和具体操作方式，请在切换场景后点击场景信息按钮查看。</p>
-                        <h6>错误定位</h6>
+                        <h5>错误定位</h5>
                         <p>如果代码运行过程中出错，双击控制台的错误信息可以让编辑器光标跳转到错误位置。</p>
-                        <h5>Powered by</h5>
+                        <h4>Powered by</h4>
                         <a class="btn btn-link" href="https://picturepan2.github.io/spectre/index.html" target="_blank">Spectre</a>/
                         <a class="btn btn-link" href="https://codemirror.net/" target="_blank">CodeMirror</a>/
                         <a class="btn btn-link" href="https://github.com/liabru/matter-js" target="_blank">Matter.js</a>/
@@ -304,8 +313,9 @@
                     <div class="content">
                         <p id="leveldesc"></p>
                         <h4>全局变量</h4>
+                        <p>这里列出了此场景中可以使用的全局变量</p>
                         <div id="globalvars">
-                            <p>这里列出了此场景中可以使用的全局变量</p>
+                            
                         </div>
                     </div>
                 </div>
