@@ -270,10 +270,12 @@
                         <p>通常js中的全局变量直接以js对象定义，可以用形如vessel.velocity.x的方式获取；
                             python中是以字典形式定义，可以用形如vessel['velocity']['x']的方式获取；
                             c++中没有直接定义全局变量，而是提供了一个获取全局变量的函数，可以用形如getFloat("vessel.velocity.x")的方式获取所需变量。</p>
+                        <h5>调试信息</h5>
+                        <p>js中的console.log()，python中的print()，c++中的printf都可以在虚拟控制台中输出信息。其中js和python可以直接打印对象或字典，c++只能打印字符串。</p>
                         <h5>错误定位</h5>
                         <p>如果代码运行过程中出错，双击控制台的错误信息可以让编辑器光标跳转到错误位置（仅限js和python）。</p>
                         <h5>改动标记</h5>
-                        <p>在保存和执行代码两个按钮上有时会出现蓝点，表示当前代码相对于上一次保存或执行有没有改动。改动的代码必须再次点击运行才会进入模拟；未保存的代码在刷新或切换场景时会消失，请注意及时保存代码。</p>
+                        <p>在保存和执行代码两个按钮上有时会出现蓝点，表示当前代码相对于上一次保存或执行有没有改动。改动的代码必须再次点击提交才会进入模拟；重置模拟之后之前提交的代码也会被重置，需要再次点击提交。</p>
                         
                         <h4>制作自定义场景</h4>
                         <p>请参考<a href="https://gitee.com/xdedss/web_pages/blob/master/game_hover/levels/starhopper.js" target="_blank">starhopper场景</a>的源码</p>
@@ -308,7 +310,7 @@
                 </div>
             </div>
         </div>
-        
+        
         <!--场景描述弹窗-->        
         <div class="modal" id="info">
             <a href="#close" class="modal-overlay" aria-label="Close"></a>
