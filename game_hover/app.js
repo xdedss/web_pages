@@ -91,11 +91,11 @@ $(function(){
             
             // params
             var globalDebug = true;
-            var width = 720;
+            var width = Math.min(720, $('#main').width());
             var height = 400;
             var langNames = ['js', 'py', 'cpp'];
             var currentLang = null;
-            var levelNamesBuiltin = ['starhopper', 'falconlanding'];
+            var levelNamesBuiltin = ['hopper', 'falcon'];
             var levelNamesExtra = storage.level.all();
             var currentLevel = null;
             
@@ -134,10 +134,11 @@ $(function(){
             // 物理帧
             Matter.Events.on(matter.engine, 'tick', function(event) {
                 if (currentLevel != null){
-                    currentLevel.tick();
+                    ui.markTime(currentLevel.time);
                 }
                 //check pause
                 enginePaused.set(matter.engine.paused);
+                
             });
             
             // save&load
@@ -172,15 +173,22 @@ $(function(){
                     changedExec.set(false);
                 }
             });
+//            // stop code
+//            ui.on('stop', function(){
+//                if (currentLevel != null){
+//                    currentLevel.exec(null, currentLang);
+//                    changedExec.set(false);
+//                }
+//            });
             
             ui.on('resetsim', function(){
                 if (currentLevel != null){
                     ui.log('level reset', 1);
                     currentLevel.reset();
-                    changedExec.set(true);
-                    // workaround To be optimized!!
-                    if (matter.engine.paused) ui.markStatus(1, 'paused');
-                    else ui.markStatus(0, 'running');
+                    //changedExec.set(true);
+                    // also run code
+                    currentLevel.exec(editor.getValue(), currentLang);
+                    //changedExec.set(false);
                 }
             });
             
@@ -220,10 +228,10 @@ $(function(){
             
             // level switch ui
             ui.listLevel(levelNamesBuiltin, levelNamesExtra);
-            ui.on('changelevel', function(lname){
+            ui.on('changelevel', function(lname, isExtra){
                 if (currentLevel == null || lname != currentLevel.name){
                     cacheCurrentCode();
-                    loadLevelAuto(lname);
+                    loadLevel(lname, isExtra);
                 }
             });
             ui.on('removelevel', function(lname){
@@ -287,18 +295,19 @@ $(function(){
             // level loading and updating
             function loadLevelAuto(name){
                 if (levelNamesBuiltin.indexOf(name) != -1){
-                    loadLevelBuiltin(name);
+                    loadLevel(name, false);
                 }
                 else if (levelNamesExtra.indexOf(name) != -1){
-                    loadLevelExtra(name);
+                    loadLevel(name, true);
                 }
                 else {
                     console.log('level not found : ' + name + ' . fall back to default');
-                    loadLevelBuiltin('starhopper'); // default
+                    loadLevel(levelNamesBuiltin[0], false); // default
                 }
             }
-            function loadLevelBuiltin(name){
+            function loadLevel(name, isExtra){
                 console.log('loading level ' + name);
+                // clear previous level
                 var prevName = 'none';
                 if (currentLevel != null){
                     prevName = currentLevel.name;
@@ -306,7 +315,16 @@ $(function(){
                     currentLevel.terminate();
                     currentLevel = null;
                 }
-                requirejs(['levels/' + name], function(Level){
+                // find what to require
+                var requireTarget;
+                if (isExtra){
+                    var levelCode = storage.level.load(name);
+                    requireTarget = 'load-string!' + levelCode;
+                }
+                else{
+                    requireTarget = 'levels/' + name;
+                }
+                requirejs([requireTarget], function(Level){
                     
                     level = new Level({ui, matter});
                     level.name = name;
@@ -321,45 +339,8 @@ $(function(){
                     
                     ui.log('[LoadLevel] level "' + name + '" loaded', 3);
                     
-                    //debug
-                    if (globalDebug){
-                        window.ui = ui;
-                        window.level = level;
-                        window.editor = editor;
-                        window.matter = matter;
-                    }
-                }, function(e){ // error
-                    ui.log('[LoadLevel] can not load builtin level "' + name + '". file missing or wrong configuration. Try ctrl+F5 force refresh', 2);
-                    console.log(e);
-                    //ui.listLevel();
-                    //ui.markLevel(prevName);
-                });
-            }
-            function loadLevelExtra(name){
-                var levelCode = storage.level.load(name);
-                console.log(levelCode);
-                console.log('loading level extra ' + name);
-                var prevName = 'none';
-                if (currentLevel != null){
-                    prevName = currentLevel.name;
-                    matter.engine.resume();
-                    currentLevel.terminate();
-                    currentLevel = null;
-                }
-                requirejs(['load-string!' + levelCode], function(Level){
-                    
-                    level = new Level({ui, matter});
-                    level.name = name;
-                    currentLevel = level;
-                    // set editor content
-                    setLang(currentLang || 'js');
-                    // set documentations
-                    ui.setHelp(level, currentLang);
-                    // hide self
-                    //ui.listLevel();
-                    ui.markLevel(name);
-                    
-                    ui.log('[LoadLevel] level "' + name + '" loaded', 3);
+                    // also run code
+                    currentLevel.exec(editor.getValue(), currentLang);
                     
                     //debug
                     if (globalDebug){
@@ -369,12 +350,11 @@ $(function(){
                         window.matter = matter;
                     }
                 }, function(e){ // error
-                    ui.log('[LoadLevel] can not load extra level "' + name + '". see F12 console for more information', 2);
+                    ui.log('[LoadLevel] can not load ' + (isExtra ? 'extra' : 'builtin') + ' level "' + name + '". Try ctrl+F5 force refresh. F12 for more info', 2);
                     console.log(e);
                     //ui.listLevel();
                     //ui.markLevel(prevName);
                 });
-                
             }
             
             // local storage

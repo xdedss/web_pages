@@ -362,7 +362,7 @@ define([
         
         template = {
             js : `
-// 示例代码：横向级联PID
+// 示例代码：横向级联速度反馈
 var phase = 0;
 function update(){
     
@@ -411,7 +411,8 @@ function update(){
 }
 `,
             py : `
-# 示例代码：咕咕咕
+# 示例代码：横向级联速度反馈
+phase = 0
 def update():
     # TODO : do some calculations
     setThrottle(1)

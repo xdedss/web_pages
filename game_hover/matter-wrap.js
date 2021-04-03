@@ -20,7 +20,7 @@ define(function() {
     return function (element, width, height) {
         // Matter.js initialization
         var debug = false;
-        //var scale = 
+        console.log('matter.js initialization with ' + width + ' x ' + height);
 
         // create an engine
         var engine = Matter.Engine.create({
@@ -150,7 +150,7 @@ define(function() {
             var absx = event.mouse.absolute.x;
             var absy = event.mouse.absolute.y;
             if (drag.down) {
-                var ratio = engine.cam.size / height / render.options.pixelRatio;
+                var ratio = engine.cam.size / height / render.options.pixelRatio * mouse.pixelRatio;
                 engine.camTarget.x += (- absx + drag.x) * ratio;
                 engine.camTarget.y += (- absy + drag.y) * ratio;
                 drag.x = absx; drag.y = absy;
@@ -201,7 +201,7 @@ define(function() {
             engine.cam.size *= Math.pow((engine.camTarget.size / engine.cam.size), lerpT);
             Matter.Render.lookAt(render, { x : engine.cam.x, y : engine.cam.y }, { x: engine.cam.size/2, y: engine.cam.size/2 });
             Matter.Mouse.setOffset(mouse, render.bounds.min);
-            var mouseScale = engine.cam.size / height;// / render.options.pixelRatio;
+            var mouseScale = engine.cam.size / height / render.options.pixelRatio * mouse.pixelRatio;
             Matter.Mouse.setScale(mouse, { x : mouseScale, y : mouseScale });
         });
         

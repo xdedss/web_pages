@@ -54,6 +54,12 @@
                 -margin-bottom : 2px;
             }
             
+            #btn-clearconsole {
+                position : absolute;
+                right : 20px;
+                bottom : 5px;
+            }
+            
             .noleft {
                 border-left: none;
                 border-top-left-radius : 0px;
@@ -71,10 +77,28 @@
             }
             
             #console{
+                position : relative;
                 height : 180px;
-                background-color : #eee;
-                overflow-y : scroll;
+                background-color : #fff;
                 font-size : 80%;
+            }
+            
+            
+            #console-scroll{
+                height : 100%;
+                overflow-y : scroll;
+            }
+            #console-scroll::-webkit-scrollbar {
+                width: 5px;
+            }
+            #console-scroll::-webkit-scrollbar-track {
+              background: #f1f1f1; 
+            }
+            #console-scroll::-webkit-scrollbar-thumb {
+              background: #888; 
+            }
+            #console-scroll::-webkit-scrollbar-thumb:hover {
+              background: #555; 
             }
             
             #console td{
@@ -135,6 +159,13 @@
                 color : #888;
             }
             
+            .btn svg{
+                margin-bottom: -7px;
+            }
+            
+            #timestamp{
+                padding : 5px;
+            }
             
         </style>
     </head>
@@ -158,44 +189,34 @@
                 <div id="mainframe" class="columns">
                     <!--CodeMirror编辑器部分-->
                     <div id="editorframe" class="column">
-                        <!--编辑器左侧按钮-->
-                        <div class="btn-group">
-                            <button class="btn" id="btn-save" data-tooltip="保存"><i class="icon icon-download"></i>保存</button>
-                            <button class="btn" id="btn-load" data-tooltip="加载"><i class="icon icon-upload"></i>加载</button>
-                            <button class="btn tooltip" id="btn-reset" data-tooltip="清空代码"><i class="icon icon-cross"></i>重置</button>
-                            <!--<a class="btn" href="#help"><i class="icon icon-search"></i>帮助</a>-->
-                        </div>
-                        <!--编辑器左侧按钮（第二组）-->
-                        <div class="btn-group">
-                            <a class="btn tooltip" data-tooltip="场景信息" href="#info">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" style="margin-bottom:-3px;" viewBox="0 0 16 16">
-                                    <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z"/>
-                                    <path d="M8.93 6.588l-2.29.287-.082.38.45.083c.294.07.352.176.288.469l-.738 3.468c-.194.897.105 1.319.808 1.319.545 0 1.178-.252 1.465-.598l.088-.416c-.2.176-.492.246-.686.246-.275 0-.375-.193-.304-.533L8.93 6.588zM9 4.5a1 1 0 1 1-2 0 1 1 0 0 1 2 0z"/>
-                                </svg>
-                            </a>
-                            <div class="dropdown"><a class="btn dropdown-toggle noleft" id="btn-lang" tabindex="0">语言:<span id="langname"></span> <i class="icon icon-caret"></i></a>
-                                <ul class="menu" id="langlist">
-                                    
-                                </ul>
-                            </div>
-                            <div class="dropdown"><a class="btn dropdown-toggle noleft" id="btn-loadlevel" tabindex="0">场景:<span id="levelname"></span> <i class="icon icon-caret"></i></a>
-                                <ul class="menu" id="levellist">
-                                    
-                                </ul>
-                            </div>
-                        <!--    <div class="popover popover-bottom">
-                                <a class="btn" id="btn-loadlevel" href="#popovers" style="margin-bottom:2px">场景:<span id="levelname"></span><i class="icon icon-arrow-down"></i></a>
-                                <div class="popover-container">
-                                    <ul class="menu" id="scenelist">
+                        <!--按钮-->
+                        <div style="display:flow-root;">
+                            <!--编辑器左侧按钮-->
+                            <div class="btn-group">
+                                <label class="btn" id="btn-save" data-tooltip="保存"><i class="icon icon-download"></i>保存</label>
+                                <label class="btn" id="btn-load" data-tooltip="加载"><i class="icon icon-upload"></i>加载</label>
+                                <label class="btn tooltip" id="btn-reset" data-tooltip="重置到示例代码"><i class="icon icon-cross"></i>删除</label>
+                                <!--<a class="btn" href="#help"><i class="icon icon-search"></i>帮助</a>-->
+                                <div class="dropdown"><a class="btn dropdown-toggle noleft" id="btn-lang" tabindex="0">语言:<span id="langname"></span> <i class="icon icon-caret"></i></a>
+                                    <ul class="menu" id="langlist">
                                         
                                     </ul>
                                 </div>
-                            </div>-->
-                        </div>
-                        <!--编辑器右侧按钮-->
-                        <div class="btn-group float-right">
-                            <button class="btn" id="btn-clearconsole"><i class="icon icon-delete"></i>清空控制台</button>
-                            <button class="btn btn-primary" id="btn-run"><i class="icon icon-forward"></i>提交代码</button>
+                            </div>
+                            <!--编辑器右侧按钮-->
+                            <div class="btn-group float-right">
+                                <!--<label class="btn tooltip" data-tooltip="停止代码运行" id="btn-stop">
+                                    <svg style="width:24px;height:24px" viewBox="0 0 24 24">
+                                        <path fill="currentColor" d="M18,18H6V6H18V18Z" />
+                                    </svg>
+                                </label>-->
+                                <label class="btn tooltip" data-tooltip="在不重启场景的情况下更新代码" id="btn-run">
+                                    热更新
+                                    <svg style="width:24px;height:24px" viewBox="0 0 24 24">
+                                        <path fill="currentColor" d="M19,3H5C3.89,3 3,3.89 3,5V9H5V5H19V19H5V15H3V19A2,2 0 0,0 5,21H19A2,2 0 0,0 21,19V5C21,3.89 20.1,3 19,3M10.08,15.58L11.5,17L16.5,12L11.5,7L10.08,8.41L12.67,11H3V13H12.67L10.08,15.58Z" />
+                                    </svg>
+                                </label>
+                            </div>
                         </div>
                         <!--编辑器容器-->
                         <div id="jseditor">
@@ -204,15 +225,55 @@
                     </div>
                     <!--Matter.js部分-->
                     <div class="column col-auto">
-                        <!--左侧按钮-->
-                        <div class="btn-group">
-                            <button class="btn" id="btn-resetsim"><i class="icon icon-refresh"></i>重置模拟</button>
-                            <button class="btn" id="btn-pause">▍▍ 暂停</button>
-                            <button class="btn" id="btn-resume">▶ 恢复</button>
+                        <!--按钮栏-->
+                        <div class="columns">
+                            <!--左侧-->
+                            <div class="column col-auto">
+                                <div class="btn-group">
+                                    <label class="btn tooltip" data-tooltip="重新加载代码和场景" id="btn-resetsim">
+                                        <svg style="width:24px;height:24px" viewBox="0 0 24 24">
+                                            <path fill="currentColor" d="M17.65,6.35C16.2,4.9 14.21,4 12,4A8,8 0 0,0 4,12A8,8 0 0,0 12,20C15.73,20 18.84,17.45 19.73,14H17.65C16.83,16.33 14.61,18 12,18A6,6 0 0,1 6,12A6,6 0 0,1 12,6C13.66,6 15.14,6.69 16.22,7.78L13,11H20V4L17.65,6.35Z" />
+                                        </svg>
+                                        重启
+                                    </label>
+                                    <label class="btn tooltip" data-tooltip="暂停/恢复物理仿真" id="btn-pause">
+                                        <svg style="width:24px;height:24px" viewBox="0 0 24 24">
+                                            <path fill="currentColor" d="M14,19H18V5H14M6,19H10V5H6V19Z" />
+                                        </svg>
+                                    </label>
+                                    <label class="btn tooltip" data-tooltip="暂停/恢复物理仿真" id="btn-resume">
+                                        <svg style="width:24px;height:24px" viewBox="0 0 24 24">
+                                            <path fill="currentColor" d="M8,5.14V19.14L19,12.14L8,5.14Z" />
+                                        </svg>
+                                    </label>
+                                    <a class="btn tooltip" data-tooltip="场景信息" href="#info">
+                                        <svg style="width:24px;height:24px;margin-bottom:-7px" viewBox="0 0 24 24">
+                                            <path fill="currentColor" d="M11,9H13V7H11M12,20C7.59,20 4,16.41 4,12C4,7.59 7.59,4 12,4C16.41,4 20,7.59 20,12C20,16.41 16.41,20 12,20M12,2A10,10 0 0,0 2,12A10,10 0 0,0 12,22A10,10 0 0,0 22,12A10,10 0 0,0 12,2M11,17H13V11H11V17Z" />
+                                        </svg>
+                                    </a>
+                                    <a class="btn tooltip" data-tooltip="场景设置" href="#settings">
+                                        <svg style="width:24px;height:24px;margin-bottom:-7px" viewBox="0 0 24 24">
+                                            <path fill="currentColor" d="M12,8A4,4 0 0,1 16,12A4,4 0 0,1 12,16A4,4 0 0,1 8,12A4,4 0 0,1 12,8M12,10A2,2 0 0,0 10,12A2,2 0 0,0 12,14A2,2 0 0,0 14,12A2,2 0 0,0 12,10M10,22C9.75,22 9.54,21.82 9.5,21.58L9.13,18.93C8.5,18.68 7.96,18.34 7.44,17.94L4.95,18.95C4.73,19.03 4.46,18.95 4.34,18.73L2.34,15.27C2.21,15.05 2.27,14.78 2.46,14.63L4.57,12.97L4.5,12L4.57,11L2.46,9.37C2.27,9.22 2.21,8.95 2.34,8.73L4.34,5.27C4.46,5.05 4.73,4.96 4.95,5.05L7.44,6.05C7.96,5.66 8.5,5.32 9.13,5.07L9.5,2.42C9.54,2.18 9.75,2 10,2H14C14.25,2 14.46,2.18 14.5,2.42L14.87,5.07C15.5,5.32 16.04,5.66 16.56,6.05L19.05,5.05C19.27,4.96 19.54,5.05 19.66,5.27L21.66,8.73C21.79,8.95 21.73,9.22 21.54,9.37L19.43,11L19.5,12L19.43,13L21.54,14.63C21.73,14.78 21.79,15.05 21.66,15.27L19.66,18.73C19.54,18.95 19.27,19.04 19.05,18.95L16.56,17.95C16.04,18.34 15.5,18.68 14.87,18.93L14.5,21.58C14.46,21.82 14.25,22 14,22H10M11.25,4L10.88,6.61C9.68,6.86 8.62,7.5 7.85,8.39L5.44,7.35L4.69,8.65L6.8,10.2C6.4,11.37 6.4,12.64 6.8,13.8L4.68,15.36L5.43,16.66L7.86,15.62C8.63,16.5 9.68,17.14 10.87,17.38L11.24,20H12.76L13.13,17.39C14.32,17.14 15.37,16.5 16.14,15.62L18.57,16.66L19.32,15.36L17.2,13.81C17.6,12.64 17.6,11.37 17.2,10.2L19.31,8.65L18.56,7.35L16.15,8.39C15.38,7.5 14.32,6.86 13.12,6.62L12.75,4H11.25Z" />
+                                        </svg>
+                                    </a>
+                                    <div class="dropdown"><a class="btn dropdown-toggle noleft" id="btn-loadlevel" tabindex="0">场景:<span id="levelname"></span> <i class="icon icon-caret"></i></a>
+                                        <ul class="menu" id="levellist">
+                                            
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                            <!--中间-->
+                            <div class="column col-auto col-mx-auto">
+                                <!--<span id="status" class="label label-success float-right"></span>-->
+                            </div>
+                            <!--右侧-->
+                            <div class="column col-auto">
+                                <span class="bg-gray" id="timestamp">t+00.00</span>
+                            </div>
                         </div>
-                        <!--右侧提示-->
-                        <span id="status" class="label label-success float-right"></span>
-                        <!--容器-->
+                        <!--</div>-->
+                        <!--Matter.js render容器-->
                         <div id="world">
                             
                         </div>
@@ -220,25 +281,27 @@
                 </div>
                 <!--virtual console-->
                 <div id="console">
-                    <table class="table table-striped table-hover">
-                        <tbody>
-                            <tr><td></td><td>Console output goes here.</td></tr>
-                        </tbody>
+                    <button class="btn" id="btn-clearconsole"><i class="icon icon-delete"></i></button>
+                    <div id="console-scroll">
+                        <table class="table table-striped table-hover">
+                            <tbody>
+                                <tr><td></td><td>Console output goes here.</td></tr>
+                            </tbody>
                     </table>
+                    </div>
                 </div>
             </div>
         </div>
-        <!--<span style="float:right;color:#888;padding-right:10px;">Powered by CodeMirror & Matter.js & esper</span>-->
         
         <!--隐藏文件上传-->
         <input type='file' id="fileselect" class="hidden" accept=".js">
         
         <!--帮助弹窗-->
         <div class="modal" id="help">
-            <a href="#close" class="modal-overlay" aria-label="Close"></a>
+            <a href="#" class="modal-overlay" aria-label="Close"></a>
             <div class="modal-container">
                 <div class="modal-header">
-                    <a href="#close" class="btn btn-clear float-right" aria-label="Close"></a>
+                    <a href="#" class="btn btn-clear float-right" aria-label="Close"></a>
                     <div class="modal-title h5">帮助</div>
                 </div>
                 <div class="modal-body">
@@ -313,10 +376,10 @@
         
         <!--场景描述弹窗-->        
         <div class="modal" id="info">
-            <a href="#close" class="modal-overlay" aria-label="Close"></a>
+            <a href="#" class="modal-overlay" aria-label="Close"></a>
             <div class="modal-container">
                 <div class="modal-header">
-                    <a href="#close" class="btn btn-clear float-right" aria-label="Close"></a>
+                    <a href="#" class="btn btn-clear float-right" aria-label="Close"></a>
                     <div class="modal-title h5">场景信息</div>
                 </div>
                 <div class="modal-body">

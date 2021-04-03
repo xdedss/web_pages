@@ -35,9 +35,9 @@ define([], function(){
                 this.listeners[e].push(l);
             }
         }
-        invoke(e, par){
+        invoke(e, ...par){
             if (this.listeners[e] != null){
-                this.listeners[e].forEach(l => l(par));
+                this.listeners[e].forEach(l => l(...par));
             }
             else{
                 console.log('warn: no listeners : ' + e);
@@ -186,7 +186,7 @@ define([], function(){
                 var ele = $(`<li class="menu-item" levelname="${lname}"><a href="#">${lname}</a></li>`);
                 (function(name){
                     ele.on('click', e=> {
-                        listeners.invoke('changelevel', name);
+                        listeners.invoke('changelevel', name, false);
                     });
                 })(lname);
                 $('#levellist').append(ele);
@@ -202,7 +202,7 @@ define([], function(){
                 `);
                 (function(name){
                     ele.find('a').on('click', e=> {
-                        listeners.invoke('changelevel', name);
+                        listeners.invoke('changelevel', name, false);
                     });
                     ele.find('div').on('click', e=> {
                         listeners.invoke('removelevel', name);
@@ -237,22 +237,24 @@ define([], function(){
             }
         }
         var markExec = function(changed){
-            if (changed){
-                $('#btn-run').addClass('badge');
-            }
-            else{
-                $('#btn-run').removeClass('badge');
-            }
+//            if (changed){
+//                $('#btn-run').addClass('badge');
+//            }
+//            else{
+//                $('#btn-run').removeClass('badge');
+//            }
         }
         // 按暂停状态隐藏按钮
         var markPaused = function(paused){
             if (paused){
                 $('#btn-resume').css('display', '');
                 $('#btn-pause').css('display', 'none');
+                $('#timestamp').addClass('bg-warning').removeClass('bg-gray');
             }
             else {
                 $('#btn-resume').css('display', 'none');
                 $('#btn-pause').css('display', '');
+                $('#timestamp').removeClass('bg-warning').addClass('bg-gray');
             }
         }
         
@@ -268,11 +270,17 @@ define([], function(){
             }
         }
         
+        // 显示时间戳
+        var markTime = function(seconds){
+            $('#timestamp').text('t+' + seconds.toFixed(2));
+        }
+        
         // listen click
         $('#btn-save').on('click', e => listeners.invoke('save'));
         $('#btn-load').on('click', e => listeners.invoke('load'));
         $('#btn-reset').on('click', e => listeners.invoke('reset'));
         $('#btn-run').on('click', e => listeners.invoke('run'));
+        $('#btn-stop').on('click', e => listeners.invoke('stop'));
         $('#btn-resetsim').on('click', e => listeners.invoke('resetsim'));
         $('#btn-pause').on('click', e => listeners.invoke('pause'));
         $('#btn-resume').on('click', e => listeners.invoke('resume'));
@@ -313,9 +321,10 @@ define([], function(){
             log,
             logError,
             setHelp,
-            markStatus,
+            markStatus, // deprecated
+            markTime,
             markSave,
-            markExec,
+            markExec, // deprecated
             markPaused,
             markLoading,
             markLevel,
