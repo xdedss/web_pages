@@ -72,7 +72,7 @@ define([
     const gearWidth = 1;
     const gearLength = 4;
     const finOffset = 24.5;
-    const finCoeff = 4; // N  per  ((m/s)^2 * rad)
+    const finCoeff = 2; // N  per  ((m/s)^2)
     
     const centerOffset = 9.5;
     const rocketHeight = 35;
@@ -314,15 +314,23 @@ define([
                 else{
                         
                     if (!this.engine.paused){
+                        // thrust
                         this.params.throttle = clamp(this.params.throttle, 0, (this.mass - dryMass) * Isp / (1/60) / maxThrust);
                         var thrust = this.params.throttle * maxThrust;
-                        var aeroForce = this.params.fin * maxFinAngle * sqrMag(this.velocity) * finCoeff;
                         Matter.Body.applyForce(this.rocket.physicalBody, l2w(this.rocket.physicalBody, thrustOffset), 
                             rot({x : 0, y : - thrust / this.massUnit * 1e-6}, this.rocket.physicalBody.angle + lerp(0, maxGimbalAngle, this.params.gimbal)));
-                        Matter.Body.applyForce(this.rocket.physicalBody, l2w(this.rocket.physicalBody, {x:0, y:-finOffset}), 
-                            rot({x : -aeroForce / this.massUnit * 1e-6, y : 0}, this.rocket.physicalBody.angle));
                         this.mass -= 1/60 * thrust / Isp;
                         Matter.Body.setMass(this.physicalBody, this.mass / this.massUnit);
+                        // aero
+                        var vel = this.velocity;
+                        var finAngleWorld = this.params.fin * maxFinAngle + this.angle;
+                        var aoa = Math.atan2(vel.x, -vel.y) - finAngleWorld;
+                        var aeroForce = Math.sin(aoa) * sqrMag(this.velocity) * finCoeff;
+                        //console.log(finAngleWorld, aoa, aeroForce);
+                        Matter.Body.applyForce(this.rocket.physicalBody, l2w(this.rocket.physicalBody, {x:0, y:-finOffset}), 
+                            rot({x : -aeroForce / this.massUnit * 1e-6, y : 0}, finAngleWorld));
+                        
+                        //gear
                         this.params.gearDown = moveTowards(this.params.gearDown, this.gearDownTarget, 1/60);
                         //console.log(this.params.gearDown, this.params.gearDownTarget);
                     }

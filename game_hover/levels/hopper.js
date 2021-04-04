@@ -254,21 +254,21 @@ void update(){
         documentation = {
             setGimbal : {
                 type : 'function',
-                desc : '设置推力矢量角度',
+                desc : '设置发动机喷口摆动',
                 params : {
                     gimbal : {
                         type : 'float',
-                        desc : '喷口摆动的角度，1代表逆时针最大摆角，-1代表顺时针最大摆角',
+                        desc : '喷口摆动的幅度，1代表逆时针最大摆角，-1代表顺时针最大摆角，超出范围的值会自动限制到范围内',
                     },
                 },
             },
             setThrottle : {
                 type : 'function',
-                desc : '设置节流阀百分比',
+                desc : '设置节流阀大小',
                 params : {
                     throttle : {
                         type : 'float',
-                        desc : '节流阀百分比，0表示无推力，1表示最大推力',
+                        desc : '节流阀大小，0表示无推力，1表示最大推力，超出范围的值会自动限制到范围内',
                     },
                 },
             },

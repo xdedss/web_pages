@@ -251,71 +251,106 @@ define([
         
         template = {
             js : `
-// 示例代码：50m悬停
+// 示例代码
+var phase = 0;
 function update(){
-    var heightErr = 50 - vessel.position.y;
-    var velErr = 0 - vessel.velocity.y;
-    console.log('height error : ' + heightErr);
-    setThrottle(heightErr + velErr);
-    setGimbal(0);
+    
+    // height control
+    var groundHeight = vessel.centerHeight; // 落地时重心高度
+    var h = vessel.position.y - groundHeight;
+    // 预估落地所需加速度和推力
+    var estAcc = Math.pow(vessel.velocity.y, 2) / (2 * h) + 9.81;
+    var maxAcc = vessel.maxThrust / vessel.mass;
+    var estThr = estAcc / maxAcc;
+    
+    if (phase == 0){
+        if (estThr > 0.95){
+            phase = 1;
+        }
+        //console.log(time);
+        console.log('est : ' + estThr + ' h: ' + h);
+    }
+    else if (phase == 1){
+        
+        var targetX = 175; 
+        setMarker(targetX, vessel.position.y);
+        console.log('est : ' + estThr + ' h: ' + h + ' mass: ' + vessel.mass);
+        // 反馈控制
+        setThrottle(0.95 + (estThr - 0.95) * 5);
+        
+        // x control
+        var xErr = targetX  - vessel.position.x;
+        var vxErr = 0 - vessel.velocity.x;
+        var targetAngle = (90 - 0.3 * (xErr + vxErr*5)) * Math.PI / 180;
+
+        // angle control
+        var angleErr = targetAngle - vessel.angle;
+        var avelErr = 0 - vessel.angularVelocity;
+        setGimbal(- 20 *(angleErr + avelErr * 1.5));
+        setFin(- 100 *(angleErr + avelErr * 1.5));
+        
+        if (h < 30) {
+            gearDown();
+        }
+        //结束条件
+        if (vessel.position.y <= groundHeight + 0.01){
+            console.log('landed');
+            setThrottle(0);
+            phase = 2;
+        }
+    }
 }
 `,
             py : `
-# 示例代码：50m悬停
+# 示例代码：暂无
 def update():
-    heightErr = 50 - vessel['position']['y']
-    velErr = 0 - vessel['velocity']['y']
-    print('height error : %f' % heightErr)
-    setThrottle(heightErr + velErr)
-    setGimbal(0)
+    pass
 `,
             cpp : `
-// 示例代码：50m悬停
+// 示例代码：暂无
 void update(){
-    float heightErr = 50 - getFloat("vessel.position.y");
-    float velErr = 0 - getFloat("vessel.velocity.y");
-    printf("height error : %f", heightErr);
-    setThrottle(heightErr + velErr);
-    setGimbal(0);
+    
 }
 `,
         }
         
         // 场景描述，会显示在场景信息里面
         desc =  `
-<p>这是一个demo场景，只是一个沙盒，没有设置目标。在这里你可以通过setThrottle和setGimbal控制一个<del>水塔</del>火箭起飞、悬停和降落。</p>
-<p>为了方便测试，这个飞行器安装了不消耗燃料、推力连续可调的魔法发动机。</p>
-<p>每个物理帧会调用一次代码中的update函数，可以通过全局变量获取火箭当前的状态，计算并施加节流阀和推力矢量的控制。</p>
-<p>⚠Fly Safe——碰撞速度大于5m/s会导致<b>Rapid Unscheduled Disassembly</b></p>`;
+<p>此场景中一个火箭正在以300m/s的速度从6km高空下落。火箭总重32t，其中约6t为燃料，发动机比冲为277s。（以上数字的精确值可以在全局变量里获取）</p>
+<p>在燃料有限的情况下，请控制火箭安全着陆到位于<b>x坐标175</b>的着陆平台上。</p>
+<p>如果着陆成功，控制台里将会以绿色字体输出成功信息，燃料消耗量和落点偏差。这个游戏的最终目标就是<b>尽量降低燃料消耗和误差</b>。</p>
+<p>值得注意的是该火箭使用的发动机最低只能稳定输出40%的最大推力，如果继续降低就会直接熄火。setThrottle传入的数值会被自动规范化到[0.4, 1.0]的区间内。这也意味着推重比永远大于一，在落点附近悬停调整水平位置是不现实的，需要想其他办法来增加水平精度。</p>
+<p>注：如果忘记放着陆架或者着陆速度大于5m/s会导致<b><i>Rapid Unscheduled Disassembly</i></b></p>
+<p>注2：由于物理引擎是固定时间步长，所以同样的初始条件+同样的代码能保证得出同样的结果。以相同初始条件运行，也可以粗略地比较出不同算法之间的性能优劣</p>`;
         // 全局变量描述
         documentation = {
             setGimbal : {
                 type : 'function',
-                desc : '设置推力矢量角度',
+                desc : '设置发动机喷口摆动',
                 params : {
                     gimbal : {
                         type : 'float',
-                        desc : '喷口摆动的角度，1代表逆时针最大摆角，-1代表顺时针最大摆角',
+                        desc : '喷口摆动的幅度，1代表逆时针最大摆角，-1代表顺时针最大摆角，超出范围的值会自动限制到范围内',
                     },
                 },
             },
             setThrottle : {
                 type : 'function',
-                desc : '设置节流阀百分比',
+                desc : '设置节流阀大小',
                 params : {
                     throttle : {
                         type : 'float',
-                        desc : '节流阀百分比，0表示无推力，1表示最大推力',
+                        desc : '节流阀大小，0表示无推力，1表示最大推力，超出范围的值会自动限制到范围内',
                     },
                 },
             },
             setFin : {
                 type : 'function',
-                desc : '设置格栅偏转角度',
+                desc : '设置格栅偏转角度。格栅能够提供的气动力和速度平方成正比',
                 params : {
                     throttle : {
                         type : 'float',
-                        desc : '-1到1之间',
+                        desc : '1代表逆时针最大摆角，-1代表顺时针最大摆角，超出范围的值会自动限制到范围内',
                     },
                 },
             },

@@ -56,8 +56,8 @@
             
             #btn-clearconsole {
                 position : absolute;
-                right : 20px;
-                bottom : 5px;
+                right : 10px;
+                bottom : 10px;
             }
             
             .noleft {
@@ -90,6 +90,7 @@
             }
             #console-scroll::-webkit-scrollbar {
                 width: 5px;
+                height : 5px;
             }
             #console-scroll::-webkit-scrollbar-track {
               background: #f1f1f1; 
@@ -195,7 +196,7 @@
                             <div class="btn-group">
                                 <label class="btn" id="btn-save" data-tooltip="保存"><i class="icon icon-download"></i>保存</label>
                                 <label class="btn" id="btn-load" data-tooltip="加载"><i class="icon icon-upload"></i>加载</label>
-                                <label class="btn tooltip" id="btn-reset" data-tooltip="重置到示例代码"><i class="icon icon-cross"></i>删除</label>
+                                <label class="btn tooltip" id="btn-reset" data-tooltip="重置到示例代码"><i class="icon icon-cross"></i>清除</label>
                                 <!--<a class="btn" href="#help"><i class="icon icon-search"></i>帮助</a>-->
                                 <div class="dropdown"><a class="btn dropdown-toggle noleft" id="btn-lang" tabindex="0">语言:<span id="langname"></span> <i class="icon icon-caret"></i></a>
                                     <ul class="menu" id="langlist">
@@ -246,6 +247,8 @@
                                             <path fill="currentColor" d="M8,5.14V19.14L19,12.14L8,5.14Z" />
                                         </svg>
                                     </label>
+                                </div>
+                                <div class="btn-group">
                                     <a class="btn tooltip" data-tooltip="场景信息" href="#info">
                                         <svg style="width:24px;height:24px;margin-bottom:-7px" viewBox="0 0 24 24">
                                             <path fill="currentColor" d="M11,9H13V7H11M12,20C7.59,20 4,16.41 4,12C4,7.59 7.59,4 12,4C16.41,4 20,7.59 20,12C20,16.41 16.41,20 12,20M12,2A10,10 0 0,0 2,12A10,10 0 0,0 12,22A10,10 0 0,0 22,12A10,10 0 0,0 12,2M11,17H13V11H11V17Z" />
@@ -314,22 +317,9 @@
                             c++仅支持基本语法和有限的头文件（不能定义class、struct，不支持模板等，具体请看JSCPP的<a href="https://github.com/felixhao28/JSCPP#which-features-are-implemented" target="_blank">readme</a>）</p>
                         <p>代码均在本地浏览器中的沙箱里执行。</p>
                         <h4>操作说明：</h4>
-                        <ul class="list">
-                            <li>保存：将当前编辑的代码以文件形式下载，快捷键ctrl+s</li>
-                            <li>加载：从本地上传代码文本文件，快捷键ctrl+o</li>
-                            <li>清空代码：重置回当前场景的默认示例代码</li>
-                            <li>场景信息：查看由场景提供的文档</li>
-                            <li>切换语言：切换编程语言</li>
-                            <li>切换场景：切换场景并重新初始化</li>
-                            <li>清空控制台：清除虚拟控制台里的所有调试信息</li>
-                            <li>提交代码：将当前编辑区的代码传入物理引擎中执行（不会重置物理引擎）</li>
-                            <li>重置模拟：将物理引擎中所有物体重设回初始状态（不会重新加载代码）</li>
-                            <li>暂停/恢复：暂停/恢复物理引擎</li>
-                        </ul>
-                        
-                        <h4>Tips</h4>
+                        <p>页面加载完成后会直接打开demo场景并开始运行示例代码。每次更改代码之后，需要点场景上方的重启来重新载入代码，或者点击热更新在不重启场景的情况下直接插入新的代码。</p>
                         <h5>场景信息和全局变量</h5>
-                        <p>不同的场景可能有不同的全局变量定义和具体操作方式，请在切换场景后点击场景信息按钮查看。</p>
+                        <p>不同的场景可能有不同的全局变量定义和具体操作方式，请点击场景信息按钮查看。</p>
                         <p>通常js中的全局变量直接以js对象定义，可以用形如vessel.velocity.x的方式获取；
                             python中是以字典形式定义，可以用形如vessel['velocity']['x']的方式获取；
                             c++中没有直接定义全局变量，而是提供了一个获取全局变量的函数，可以用形如getFloat("vessel.velocity.x")的方式获取所需变量。</p>
@@ -337,8 +327,8 @@
                         <p>js中的console.log()，python中的print()，c++中的printf都可以在虚拟控制台中输出信息。其中js和python可以直接打印对象或字典，c++只能打印字符串。</p>
                         <h5>错误定位</h5>
                         <p>如果代码运行过程中出错，双击控制台的错误信息可以让编辑器光标跳转到错误位置（仅限js和python）。</p>
-                        <h5>改动标记</h5>
-                        <p>在保存和执行代码两个按钮上有时会出现蓝点，表示当前代码相对于上一次保存或执行有没有改动。改动的代码必须再次点击提交才会进入模拟；重置模拟之后之前提交的代码也会被重置，需要再次点击提交。</p>
+                        <h5>保存</h5>
+                        <p>代码改动后保存按钮上会有蓝点提示，虽然代码会缓存在页面的localStorage里，但还是建议及时保存成文件。如果代码不想要了可以点清除重置成默认代码。</p>
                         
                         <h4>制作自定义场景</h4>
                         <p>请参考<a href="https://gitee.com/xdedss/web_pages/blob/master/game_hover/levels/starhopper.js" target="_blank">starhopper场景</a>的源码</p>
@@ -386,9 +376,30 @@
                     <div class="content">
                         <p id="leveldesc"></p>
                         <h4>全局变量</h4>
-                        <p>这里列出了此场景中可以使用的全局变量</p>
+                        <p>这里列出了此场景中可以使用的全局变量和函数</p>
                         <div id="globalvars">
                             
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    
+                </div>
+            </div>
+        </div>
+        
+        <!--场景设置弹窗-->        
+        <div class="modal" id="settings">
+            <a href="#" class="modal-overlay" aria-label="Close"></a>
+            <div class="modal-container">
+                <div class="modal-header">
+                    <a href="#" class="btn btn-clear float-right" aria-label="Close"></a>
+                    <div class="modal-title h5">场景设置</div>
+                </div>
+                <div class="modal-body">
+                    <div class="content">
+                        <div id="scenesettings">
+                            暂无
                         </div>
                     </div>
                 </div>
