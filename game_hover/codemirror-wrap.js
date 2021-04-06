@@ -35,14 +35,19 @@ define([
             autoCloseBrackets : true,
             lint: true,
         });
-        $('.CodeMirror').css('height', height).css('max-width', width);
+        //console.log(width);
+        $('.CodeMirror').css('height', height);//.css('max-width', width);
+        $('#editorframe').css('overflow', 'hidden');
         
         // editor width workaround
-        $(window).on('resize', e => {
-            $('.CodeMirror').css('width', '0');
-            //$('.CodeMirror').css('width', '')
-            setTimeout(() => $('.CodeMirror').css('width', ''), 10);
-        });
+//        $(window).on('resize', e => {
+//            $('.CodeMirror').css('width', '0');
+//            //$('.CodeMirror').css('width', '')
+//            setTimeout(() => {
+//                $('.CodeMirror').css('width', '');
+//                $('.CodeMirror').css('height', height).css('max-width', width);
+//            }, 10);
+//        });
         
         editor.setLang = function(lang){
             switch(lang){
