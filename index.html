@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
     <head>
-        <title>前端实验室</title>
+        <title>xdedss</title>
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
         
@@ -46,9 +46,7 @@
     </head>
     <body style="">
         <div id="center">
-            <h1>前端实验室</h1>
-            
-            <p>托管在pages上，放一些纯网页前端</p>
+            <h1 id="title"></h1>
             
             <div style="">
                 <div class="accordion">
@@ -105,6 +103,11 @@
                 </a> © xdedss
             </div>
         </div>
+
+        <script>
+            let possibleTitle = ['(´･ω･`)', '(╯‵□′)╯︵┻━┻', 'hello world!', '233333', '_(:з」∠)_'];
+            document.getElementById('title').textContent = possibleTitle[Math.floor(Math.random() * possibleTitle.length)];
+        </script>
     </body>
 </html>
 
