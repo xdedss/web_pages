@@ -1,0 +1,111 @@
+<!doctype html>
+<html>
+    <head>
+        <title>现代控制</title>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+
+        <link rel="icon" href="../favicon.ico">
+        <link rel="stylesheet" href="../common/spectre.min.css">
+        <link rel="stylesheet" href="../common/spectre-exp.min.css">
+        <link rel="stylesheet" href="../common/spectre-icons.min.css">
+
+        <script src="../common/rerolpxe-tenretni.js"></script>
+        
+        <script src="https://apps.bdimg.com/libs/jquery/2.1.4/jquery.min.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/mathjs@9.4.2/lib/browser/math.min.js"></script>
+        <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+        <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>
+        <script src="../common/rmenu.js"></script>
+        <script src="../common/events.js"></script>
+        <script src="../common/header.js"></script>
+        <style>
+            
+            body { 
+                overflow: overlay
+            }
+
+            #intro{
+                background: #fff;
+                -position: absolute;
+                width: auto;
+                padding: 20px;
+            }
+            
+            /* 卡片外圈 */
+            #cards > .column {
+                padding : .4rem;
+            }
+            
+            /* 卡片本体 */
+            #cards > .column > .card {
+                border: 0;
+                box-shadow: 0 0.25rem 1rem rgb(48 55 66 / 15%);
+                padding-bottom: .8rem;
+                position : relative;
+            }
+            /* 卡片footer */
+            #cards > .column > .card .card-footer {
+                padding-bottom: 0;
+            }
+            /* timer */
+            #cards > .column > .card .timer {
+                position : absolute;
+                top : .8rem;
+                right : .8rem;
+                color : #08f;
+            }
+            
+            
+            /* 隐藏checkbox */
+            #cards > .column > input[type="checkbox"] {
+                display: none;
+            }
+            
+            /* 展开图标 */
+            #cards > .column > .card .card-extend {
+                user-select : none;
+                cursor : pointer;
+            }
+            #cards > .column > .card .card-extend i {
+                transition: transform 0.2s;
+            }
+            #cards > .column > input:not(:checked) + .card .card-extend i {
+                transform: rotate(-90deg);
+            }
+            
+            /* 不展开时隐藏卡片内容 */
+            #cards > .column > input:not(:checked) + .card .card-body {
+                display: none;
+            }
+            #cards > .column > input:not(:checked) + .card .card-footer {
+                display: none;
+            }
+            #cards > .column > input:not(:checked) + .card .card-subtitle {
+                white-space:nowrap;
+                overflow: hidden;
+                text-overflow: ellipsis;
+            }
+            
+
+
+        </style>
+    </head>
+    <body>
+        <header class="navbar">
+        </header>
+        
+        
+        <div id="intro">
+            <h2>现代控制理论练习题</h2>
+            
+            <div class="columns" id="cards">
+                
+                
+            </div>
+            
+        </div>
+        <script src="app.js"></script>
+        
+    </body>
+</html>
