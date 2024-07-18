@@ -21,7 +21,10 @@
     var keymap = {
         set : function(i, v){
             this[i] = v;
-        }
+        },
+        get: function (i) {
+            return this[i];
+        },
     };
     var listeners = {};
     
