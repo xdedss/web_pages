@@ -80,6 +80,7 @@ $(function () {
     const spaceInputTracker = createBoolTracker(false);
 
     const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+    let audioSource = null;
     async function loadAudio(path) {
         let response = await fetch(path);
         let arrayBuffer = await response.arrayBuffer();
@@ -293,7 +294,7 @@ $(function () {
                         let secondsBeforeHit = beatsBeforeHit / (data.bpm / 60.0);
                         if (secondsBeforeHit <= -data.hitToleranceAfter) {
                             data.notes[noteIndex].state = NOTE_STATE_MISS;
-                            spawnParticle(data.notes[noteIndex].direction, 'miss');
+                            spawnParticle(data.notes[noteIndex].direction, 'hit');
                             data.scores.push({
                                 time: data.playbackBeats,
                                 secs: data.playbackBeats / (data.bpm / 60.0),
@@ -327,10 +328,6 @@ $(function () {
                 else if (leftInputTracker.becomeTrue()) {
                     data.leftTimeout = data.dodgeDuration;
                     data.rightTimeout = 0;
-                }
-
-                if (spaceInputTracker.becomeTrue()) {
-                    data.playDemo();
                 }
 
                 if (data.isPlaying) {
@@ -376,6 +373,16 @@ $(function () {
                     // check for miss
                     markMissNotes(data.notesRoi[0], data.notesRoi[1]);
 
+                    // user exits game
+                    if (spaceInputTracker.becomeTrue()) {
+                        data.endGame();
+                    }
+
+                }
+                else {
+                    if (spaceInputTracker.becomeTrue()) {
+                        data.playDemo();
+                    }
                 }
 
                 // timers
@@ -410,8 +417,9 @@ $(function () {
                     data.spriteState = SPRITE_CENTER;
                 }
 
+                // stop/start game
                 if (data.playbackBeats >= data.totalBeats) {
-                    data.isPlaying = false;
+                    data.endGame();
                 }
 
                 animationHandle = window.requestAnimationFrame(gameTick);
@@ -440,7 +448,7 @@ $(function () {
                 this.totalBeats = song.totalBeats;
                 // play audio
                 await audioContext.resume();
-                playAudio(await loadAudio(song.url));
+                audioSource = playAudio(await loadAudio(song.url));
                 // reset state
                 this.playbackBeats = - song.startOffset * song.bpm / 60.0;
                 this.isPlaying = true;
@@ -452,6 +460,12 @@ $(function () {
                 this.nextEventIndex = 0;
                 this.leftTimeout = 0;
                 this.rightTimeout = 0;
+            },
+            endGame() {
+                if (audioSource) {
+                    audioSource.stop();
+                }
+                this.isPlaying = false;
             },
             getMainSpriteStyle() {
                 let styleDict = {};
@@ -524,8 +538,8 @@ $(function () {
                     styleDict['text-align'] = 'left';
                     styleDict.left = (20 - 100 * this.particleHorizontalTravel * (1 - particle.life)) + '%';
                 }
-                if (particle.content == '?' || particle.content == 'miss') {
-                    stateDict.color = '#f00';
+                if (particle.content == '?' || particle.content == 'hit') {
+                    styleDict.color = '#800';
                 }
                 styleDict.opacity = particle.life;
                 styleDict.top = (100 * (this.hitLinePosition)) + '%';
