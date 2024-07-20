@@ -1,6 +1,10 @@
 
 $(function () {
 
+    const GAME_STATE_MENU = 0;
+    const GAME_STATE_PLAYING = 1;
+    const GAME_STATE_OVER = 2;
+
     const SPRITE_LEFT = -1;
     const SPRITE_CENTER = 0;
     const SPRITE_RIGHT = 1;
@@ -84,19 +88,27 @@ $(function () {
     const rightInputTracker = createBoolTracker(false);
     const spaceInputTracker = createBoolTracker(false);
 
+    let preloadSongDefs = null;
     const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+    const gunGainNode = audioContext.createGain();
+    gunGainNode.gain.value = 0.5;
+    gunGainNode.connect(audioContext.destination);
     let audioSource = null;
+    let gunAudioBuffer = null;
     async function loadAudio(path) {
         let response = await fetch(path);
         let arrayBuffer = await response.arrayBuffer();
         let audioBuffer = await audioContext.decodeAudioData(arrayBuffer);
         return audioBuffer;
     }
-
-    function playAudio(audioBuffer) {
+    function prepareSource(audioBuffer, dest) {
         let source = audioContext.createBufferSource();
         source.buffer = audioBuffer;
-        source.connect(audioContext.destination);
+        source.connect(dest == null ? audioContext.destination : dest);
+        return source;
+    }
+    function playAudio(audioBuffer, dest) {
+        let source = prepareSource(audioBuffer, dest);
         source.start();
         return source;
     }
@@ -139,6 +151,9 @@ $(function () {
                 // particles
                 particleLifeSeconds: 1.5,
                 particleHorizontalTravel: 0.3, // relative to height
+                // audio
+                audioDelay: 0.0, // sec
+                gunAudioBias: 0.18, // sec
 
                 // ===== state vars =====
                 // state of the main char
@@ -162,6 +177,7 @@ $(function () {
                 nearestRightIndex: 0,
                 // keeps track of the next note
                 nextNoteIndex: 0,
+                nextNotePreloadIndex: 0, // triggers before passing the line
                 // keeps track of the next event
                 nextEventIndex: 0,
                 // playback speed
@@ -169,8 +185,8 @@ $(function () {
                 // playback progress
                 playbackBeats: 0,
                 totalBeats: 0,
-                // play/pause
-                isPlaying: false,
+                // state
+                gameState: GAME_STATE_MENU,
 
                 // particles on hitline
                 // { life: 1...0 relative life, direction: , content }
@@ -245,10 +261,12 @@ $(function () {
 
             // track the next note that will pass the line
             // trigger callback if a note passes the line
-            const trackPassLine = function (currentIndex, onPass) {
+            const trackPassLine = function (currentIndex, onPass, preloadBias) {
+                if (preloadBias == null) preloadBias = 0;
+                let preloadBiasBeats = preloadBias * (data.bpm / 60.0);
                 // currentIndex: the next note that has not passed the line
                 for (; currentIndex < data.notes.length; currentIndex++) {
-                    if (data.notes[currentIndex].time > data.playbackBeats) {
+                    if (data.notes[currentIndex].time - preloadBiasBeats > data.playbackBeats) {
                         // not yet
                         break;
                     }
@@ -351,7 +369,7 @@ $(function () {
                     data.rightTimeout = 0;
                 }
 
-                if (data.isPlaying) {
+                if (data.gameState == GAME_STATE_PLAYING) {
                     data.playbackBeats += db;
                     // console.log(data.playbackBeats);
 
@@ -374,6 +392,10 @@ $(function () {
                             data.leftBulletTimeout = data.bulletDuration;
                         }
                     });
+                    data.nextNotePreloadIndex = trackPassLine(data.nextNotePreloadIndex, noteIndexPassed => {
+                        // play audio
+                        playAudio(gunAudioBuffer, gunGainNode);
+                    }, data.gunAudioBias);
                     // track events
                     data.nextEventIndex = trackEvent(data.nextEventIndex, eventIndex => {
                         let event = data.events[eventIndex];
@@ -396,9 +418,14 @@ $(function () {
 
                     // user exits game
                     if (spaceInputTracker.becomeTrue()) {
-                        data.endGame();
                         // clear scores
-                        data.scores = [];
+                        // data.scores = [];
+                        data.endGame();
+                        data.gameState = GAME_STATE_MENU;
+                    }
+                    // naturally stops
+                    if (data.playbackBeats >= data.totalBeats) {
+                        data.endGame();
                     }
 
                 }
@@ -440,27 +467,29 @@ $(function () {
                     data.spriteState = SPRITE_CENTER;
                 }
 
-                // stop/start game
-                if (data.playbackBeats >= data.totalBeats) {
-                    data.endGame();
-                }
 
                 animationHandle = window.requestAnimationFrame(gameTick);
             };
             animationHandle = window.requestAnimationFrame(gameTick);
         },
         methods: {
-            async startPlayUrl(url) {
-                let song = await fetchJson(url);
-                for (let note of song.notes) {
+            async preloadAsyncContents(url) {
+                preloadSongDefs = await fetchJson(url);
+                for (let note of preloadSongDefs.notes) {
                     if (SPRITE_DIRECTION_MAP[note.direction] !== undefined) {
                         note.direction = SPRITE_DIRECTION_MAP[note.direction];
                     }
                 }
-                console.log(song);
-                await this.startPlay(song);
+                await audioContext.resume();
+                gunAudioBuffer = await loadAudio('./songs/gun.mp3');
+                audioSource = prepareSource(await loadAudio(preloadSongDefs.url));
             },
-            async startPlay(song) {
+            async startPlayUrl(url) {
+                await this.preloadAsyncContents(url);
+                console.log(preloadSongDefs);
+                this.startPlay(preloadSongDefs);
+            },
+            startPlay(song) {
                 // build notes
                 let notesWithState = [];
                 for (let note of song.notes) {
@@ -478,18 +507,18 @@ $(function () {
                 this.events = song.events;
                 this.totalBeats = song.totalBeats;
                 // play audio
-                await audioContext.resume();
-                audioSource = playAudio(await loadAudio(song.url));
+                audioSource.start();
                 // clear scores
                 this.scores = [];
                 // reset state
                 this.playbackBeats = - song.startOffset * song.bpm / 60.0;
-                this.isPlaying = true;
+                this.gameState = GAME_STATE_PLAYING;
                 this.bpm = song.bpm;
                 this.notesRoi = [0, 0];
                 this.nearestLeftIndex = -1;
                 this.nearestRightIndex = -1;
                 this.nextNoteIndex = 0;
+                this.nextNotePreloadIndex = 0;
                 this.nextEventIndex = 0;
                 this.leftTimeout = 0;
                 this.rightTimeout = 0;
@@ -498,7 +527,7 @@ $(function () {
                 if (audioSource) {
                     audioSource.stop();
                 }
-                this.isPlaying = false;
+                this.gameState = GAME_STATE_OVER;
             },
             getMainSpriteStyle() {
                 let styleDict = {};
@@ -541,7 +570,7 @@ $(function () {
             getStaticIconStyle(direction) {
                 let styleDict = {};
                 // visibility
-                if (!this.isPlaying) {
+                if (this.gameState != GAME_STATE_PLAYING) {
                     styleDict.display = 'none';
                 }
                 // size
@@ -603,6 +632,12 @@ $(function () {
                 }
                 return res;
             },
+            showTip() {
+                return this.gameState == GAME_STATE_MENU;
+            },
+            showStat() {
+                return this.gameState == GAME_STATE_OVER;
+            },
             totalScore() {
                 let res = 0;
                 for (let hitStat of this.scores) {
@@ -661,12 +696,14 @@ $(function () {
                             break;
                     }
                 }
-                if (missCount == 0 && emptyCount == 0) {
-                    return '毫发无伤';
+                if (missCount == 0) {
+                    if (emptyCount <= 10) return '毫发无伤';
+                    else return '假动作之王';
                 }
-                if (missCount >= 10) {
-                    return 'Fight!';
+                if (missCount <= 10) {
+                    return 'FIGHT!';
                 }
+                return '耐狙王';
             },
         },
     }).mount('#app');

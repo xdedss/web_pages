@@ -202,19 +202,20 @@
                         <div id="top-overlay" class="full-size-sprite" style="z-index: 50; color: black;">
                             <div class="progress-bar"><span :style="{width: (100 * playbackBeats / totalBeats) + '%'}"></span></div>
                             <div class="score white-shadow-big" :data-content="totalScore">{{ totalScore }}</div>
-                            <div id="game-tip" class="" :style="{display: (scores.length==0 && !isPlaying) ? '' : 'none'}">
+                            <div id="game-tip" class="" :style="{display: showTip ? '' : 'none'}">
                                 <!-- <div class="white-shadow-big" data-content="操作：">操作：</div> -->
-                                <div class="white-shadow-big" data-content="空格：开始/结束游戏">空格：开始/结束游戏</div>
                                 <div class="white-shadow-big" data-content="A/D：摇晃脑袋">A/D：摇晃脑袋</div>
+                                <div class="white-shadow-big" data-content="空格：开始/结束游戏">空格：开始/结束游戏</div>
                             </div>
-                            <div id="game-over" class="" :style="{display: (scores.length>0 && !isPlaying) ? '' : 'none'}">
+                            <div id="game-over" class="" :style="{display: showStat ? '' : 'none'}">
                                 <!-- <div class="white-shadow-big" style="font-size: 40px;" data-content="">Game Over</div> -->
                                 <div class="white-shadow-big" :data-content="scoreComment"style="font-size: 40px;">{{scoreComment}}</div>
                                 <div class="white-shadow-big" :data-content="scoreStats" v-html="scoreStats"></div>
+                                <div class="white-shadow-big" data-content="按空格键重玩">按空格键重玩</div>
                             </div>
                         </div>
                         <span id="hitline"
-                            :style="{top: (hitLinePosition * 100) + '%', display: isPlaying ? '' : 'none'}"></span>
+                            :style="{top: (hitLinePosition * 100) + '%', display: gameState == 1 ? '' : 'none'}"></span>
                         <img class="note-icon" v-for="noteIndex in noteIndexInRoi" src="imgs/bullet.png"
                             style="z-index: 5;" :style="getIconStyle(noteIndex)" />
                         <img class="note-icon" src="imgs/bullet_outline.png" style="z-index: 4;"
