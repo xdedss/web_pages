@@ -507,7 +507,7 @@ $(function () {
                 // clear scores
                 this.scores = [];
                 // reset state
-                this.playbackBeats = - song.startOffset * song.bpm / 60.0;
+                this.playbackBeats = - (song.startOffset + this.audioDelay) * song.bpm / 60.0;
                 this.gameState = GAME_STATE_PLAYING;
                 this.bpm = song.bpm;
                 this.notesRoi = [0, 0];
