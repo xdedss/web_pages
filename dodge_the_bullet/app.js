@@ -20,53 +20,16 @@ $(function () {
     const NOTE_STATE_EMPTY = 3;
 
     let animationHandle = null;
+    let inBackground = false;
 
-    // const testSong = {
-    //     bpm: 125.387,
-    //     totalBeats: 500,
-    //     startOffset: 1.05, // seconds before the 0th beat
-    //     url: './songs/ymca.mp3',
-    //     notes: [
-    //         {
-    //             time: 0,
-    //             direction: SPRITE_RIGHT,
-    //         },
-    //         {
-    //             time: 2,
-    //             direction: SPRITE_LEFT,
-    //         },
-    //         {
-    //             time: 4,
-    //             direction: SPRITE_RIGHT,
-    //         },
-    //         {
-    //             time: 6,
-    //             direction: SPRITE_LEFT,
-    //         },
-    //         {
-    //             time: 8,
-    //             direction: SPRITE_RIGHT,
-    //         },
-    //         {
-    //             time: 10,
-    //             direction: SPRITE_LEFT,
-    //         },
-    //         {
-    //             time: 12,
-    //             direction: SPRITE_RIGHT,
-    //         },
-    //         {
-    //             time: 14,
-    //             direction: SPRITE_LEFT,
-    //         },
-    //     ],
-    //     events: [
-    //         {
-    //             time: 56,
-    //             bpm: 127,
-    //         }
-    //     ],
-    // };
+    document.addEventListener('visibilitychange', () => {
+        if (document.visibilityState != 'visible') {
+            inBackground = true;
+        }
+        else {
+            inBackground = false;
+        }
+    });
 
     const createBoolTracker = function (initialState) {
         return {
@@ -191,6 +154,8 @@ $(function () {
                 // particles on hitline
                 // { life: 1...0 relative life, direction: , content }
                 particles: [],
+                // { x, y, vx, vy, ax, ay } all in relative units 0~1
+                bloodDots: [],
             };
         },
         mounted() {
@@ -297,13 +262,33 @@ $(function () {
                 });
             };
 
+            const spawnBlood = function (direction) {
+                for (let i = 0; i < 4; i++) {
+                    const baseVx = 0.1;
+                    const baseX = 0.06;
+                    const randVx = 0.4;
+                    const randVyFrom = -0.3;
+                    const randVyTo = 0.0;
+                    let blood = {
+                        x: direction == SPRITE_LEFT ? (0.5 + baseX) : (0.5 - baseX),
+                        y: 0.3,
+                        vx: direction == SPRITE_LEFT ? (baseVx + Math.random() * randVx) : -(baseVx + Math.random() * randVx),
+                        vy: Math.random() * (randVyTo - randVyFrom) + randVyFrom,
+                        ax: 0,
+                        ay: 1,
+                    };
+                    data.bloodDots.push(blood);
+                }
+            };
+
             const tryHitNote = function (noteIndex) {
                 let noteBeats = data.notes[noteIndex].time;
                 let beatsBeforeHit = (noteBeats - data.playbackBeats);
                 let secondsBeforeHit = beatsBeforeHit / (data.bpm / 60.0);
                 if (secondsBeforeHit < data.hitToleranceBefore && secondsBeforeHit > -data.hitToleranceAfter) {
                     data.notes[noteIndex].state = NOTE_STATE_HIT;
-                    spawnParticle(data.notes[noteIndex].direction, '' + Math.round(data.computeNoteScore(secondsBeforeHit)));
+                    let earlyMarker = secondsBeforeHit > 0 ? '-' : '+';
+                    spawnParticle(data.notes[noteIndex].direction, '' + Math.round(data.computeNoteScore(secondsBeforeHit)) + earlyMarker);
                     data.scores.push({
                         time: data.playbackBeats,
                         secs: data.playbackBeats / (data.bpm / 60.0),
@@ -334,6 +319,7 @@ $(function () {
                         if (secondsBeforeHit <= -data.hitToleranceAfter) {
                             data.notes[noteIndex].state = NOTE_STATE_MISS;
                             spawnParticle(data.notes[noteIndex].direction, 'hit');
+                            spawnBlood(data.notes[noteIndex].direction);
                             data.scores.push({
                                 time: data.playbackBeats,
                                 secs: data.playbackBeats / (data.bpm / 60.0),
@@ -394,7 +380,9 @@ $(function () {
                     });
                     data.nextNotePreloadIndex = trackPassLine(data.nextNotePreloadIndex, noteIndexPassed => {
                         // play audio
-                        playAudio(gunAudioBuffer, gunGainNode);
+                        if (!inBackground) {
+                            playAudio(gunAudioBuffer, gunGainNode);
+                        }
                     }, data.gunAudioBias);
                     // track events
                     data.nextEventIndex = trackEvent(data.nextEventIndex, eventIndex => {
@@ -455,6 +443,14 @@ $(function () {
                     }
                 }
                 data.particles = data.particles.filter(p => p.life > 0);
+                // blood
+                for (let blood of data.bloodDots) {
+                    blood.vx += blood.ax * dt;
+                    blood.vy += blood.ay * dt;
+                    blood.x += blood.vx * dt;
+                    blood.y += blood.vy * dt;
+                }
+                data.bloodDots = data.bloodDots.filter(b => b.y < 1.0);
 
                 // update sprite
                 if (data.leftTimeout > 0) {
@@ -605,6 +601,14 @@ $(function () {
                 }
                 styleDict.opacity = particle.life;
                 styleDict.top = (100 * (this.hitLinePosition)) + '%';
+                return styleDict;
+            },
+            getBloodStyle(blood) {
+                // { x, y, vx, vy, ax, ay }
+                let styleDict = {};
+                // size
+                styleDict.top = (blood.y * 100) + '%';
+                styleDict.left = (blood.x * 100) + '%';
                 return styleDict;
             },
             computeNoteScore(timeBeforeHit) {

@@ -92,6 +92,13 @@
             color: #003f15;
         }
 
+        #overlay .blood-dot {
+            position: absolute;
+            width: 1.5%;
+            height: 1.5%;
+            background-color: rgb(196, 9, 9);
+        }
+
         #top-overlay {
             display: flex;
             align-items: center;
@@ -224,6 +231,7 @@
                             :style="getStaticIconStyle(1)" />
                         <span class="hit-particle white-shadow" v-for="particle in particles"
                             :style="getParticleStyle(particle)">{{particle.content}}</span>
+                        <span class="blood-dot" v-for="blood in bloodDots" :style="getBloodStyle(blood)"></span>
                     </div>
 
 
