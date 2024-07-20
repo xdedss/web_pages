@@ -4,6 +4,11 @@ $(function () {
     const SPRITE_LEFT = -1;
     const SPRITE_CENTER = 0;
     const SPRITE_RIGHT = 1;
+    const SPRITE_DIRECTION_MAP = {
+        'SPRITE_LEFT': SPRITE_LEFT,
+        'SPRITE_CENTER': SPRITE_CENTER,
+        'SPRITE_RIGHT': SPRITE_RIGHT,
+    };
 
     const NOTE_STATE_INITIAL = 0;
     const NOTE_STATE_HIT = 1;
@@ -12,52 +17,52 @@ $(function () {
 
     let animationHandle = null;
 
-    const testSong = {
-        bpm: 125.387,
-        totalBeats: 500,
-        startOffset: 1.05, // seconds before the 0th beat
-        url: './songs/ymca.mp3',
-        notes: [
-            {
-                time: 0,
-                direction: SPRITE_RIGHT,
-            },
-            {
-                time: 2,
-                direction: SPRITE_LEFT,
-            },
-            {
-                time: 4,
-                direction: SPRITE_RIGHT,
-            },
-            {
-                time: 6,
-                direction: SPRITE_LEFT,
-            },
-            {
-                time: 8,
-                direction: SPRITE_RIGHT,
-            },
-            {
-                time: 10,
-                direction: SPRITE_LEFT,
-            },
-            {
-                time: 12,
-                direction: SPRITE_RIGHT,
-            },
-            {
-                time: 14,
-                direction: SPRITE_LEFT,
-            },
-        ],
-        events: [
-            {
-                time: 56,
-                bpm: 127,
-            }
-        ],
-    };
+    // const testSong = {
+    //     bpm: 125.387,
+    //     totalBeats: 500,
+    //     startOffset: 1.05, // seconds before the 0th beat
+    //     url: './songs/ymca.mp3',
+    //     notes: [
+    //         {
+    //             time: 0,
+    //             direction: SPRITE_RIGHT,
+    //         },
+    //         {
+    //             time: 2,
+    //             direction: SPRITE_LEFT,
+    //         },
+    //         {
+    //             time: 4,
+    //             direction: SPRITE_RIGHT,
+    //         },
+    //         {
+    //             time: 6,
+    //             direction: SPRITE_LEFT,
+    //         },
+    //         {
+    //             time: 8,
+    //             direction: SPRITE_RIGHT,
+    //         },
+    //         {
+    //             time: 10,
+    //             direction: SPRITE_LEFT,
+    //         },
+    //         {
+    //             time: 12,
+    //             direction: SPRITE_RIGHT,
+    //         },
+    //         {
+    //             time: 14,
+    //             direction: SPRITE_LEFT,
+    //         },
+    //     ],
+    //     events: [
+    //         {
+    //             time: 56,
+    //             bpm: 127,
+    //         }
+    //     ],
+    // };
 
     const createBoolTracker = function (initialState) {
         return {
@@ -94,6 +99,22 @@ $(function () {
         source.connect(audioContext.destination);
         source.start();
         return source;
+    }
+
+    async function fetchJson(url) {
+        try {
+            let response = await fetch(url);
+            // Check if the response is OK (status code 200-299)
+            if (!response.ok) {
+                throw new Error(`HTTP error! Status: ${response.status}`);
+            }
+
+            // Parse the response as JSON
+            let data = await response.json();
+            return data;
+        } catch (error) {
+            console.error('Error fetching JSON:', error);
+        }
     }
 
     const app = Vue.createApp({
@@ -376,6 +397,8 @@ $(function () {
                     // user exits game
                     if (spaceInputTracker.becomeTrue()) {
                         data.endGame();
+                        // clear scores
+                        data.scores = [];
                     }
 
                 }
@@ -427,6 +450,16 @@ $(function () {
             animationHandle = window.requestAnimationFrame(gameTick);
         },
         methods: {
+            async startPlayUrl(url) {
+                let song = await fetchJson(url);
+                for (let note of song.notes) {
+                    if (SPRITE_DIRECTION_MAP[note.direction] !== undefined) {
+                        note.direction = SPRITE_DIRECTION_MAP[note.direction];
+                    }
+                }
+                console.log(song);
+                await this.startPlay(song);
+            },
             async startPlay(song) {
                 // build notes
                 let notesWithState = [];
@@ -443,12 +476,12 @@ $(function () {
                 console.log(`got notes len = ${notesWithState.length}`);
                 // events
                 this.events = song.events;
-                // clear scores
-                this.scores = [];
                 this.totalBeats = song.totalBeats;
                 // play audio
                 await audioContext.resume();
                 audioSource = playAudio(await loadAudio(song.url));
+                // clear scores
+                this.scores = [];
                 // reset state
                 this.playbackBeats = - song.startOffset * song.bpm / 60.0;
                 this.isPlaying = true;
@@ -558,7 +591,7 @@ $(function () {
                 return Math.round(res);
             },
             playDemo() {
-                this.startPlay(testSong);
+                this.startPlayUrl('./songs/ymca.json');
             },
         },
         computed: {
@@ -586,6 +619,54 @@ $(function () {
                     }
                 }
                 return res;
+            },
+            scoreStats() {
+                let hitCount = 0;
+                let missCount = 0;
+                let emptyCount = 0;
+                for (let hitStat of this.scores) {
+                    // { time, type, index, bias }
+                    switch (hitStat.type) {
+                        case NOTE_STATE_HIT:
+                            hitCount++;
+                            break;
+                        case NOTE_STATE_MISS:
+                            missCount++;
+                            break;
+                        case NOTE_STATE_EMPTY:
+                            emptyCount++;
+                            break;
+                    }
+                }
+                return `躲过${hitCount}次射击 被击中${missCount}次 假动作${emptyCount}次`;
+            },
+            scoreComment() {
+                if (this.scores.length == 0) {
+                    return 'empty!';
+                }
+                let hitCount = 0;
+                let missCount = 0;
+                let emptyCount = 0;
+                for (let hitStat of this.scores) {
+                    // { time, type, index, bias }
+                    switch (hitStat.type) {
+                        case NOTE_STATE_HIT:
+                            hitCount++;
+                            break;
+                        case NOTE_STATE_MISS:
+                            missCount++;
+                            break;
+                        case NOTE_STATE_EMPTY:
+                            emptyCount++;
+                            break;
+                    }
+                }
+                if (missCount == 0 && emptyCount == 0) {
+                    return '毫发无伤';
+                }
+                if (missCount >= 10) {
+                    return 'Fight!';
+                }
             },
         },
     }).mount('#app');

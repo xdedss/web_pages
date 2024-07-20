@@ -86,11 +86,10 @@
 
         #overlay .hit-particle {
             position: absolute;
-            font-size: 20px;
+            font-size: 24px;
             font-weight: bolder;
             /* font-family: monospace; */
             color: #003f15;
-            text-shadow:0 0 5px rgb(255, 255, 255)
         }
 
         #top-overlay {
@@ -117,6 +116,45 @@
         .progress-bar span {
             height: 2px;
             background-color: red;
+        }
+        
+        .score {
+            text-align: center;
+            font-size: 30px;
+            font-weight: bolder;
+            /* font-family: monospace; */
+            color: #202020;
+        }
+
+        #game-over {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        #game-tip {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .text-center {
+            text-align: center;
+        }
+
+        .white-shadow {
+            text-shadow:0 0 5px rgb(255, 255, 255);
+        }
+        .white-shadow-big::after {
+            content: attr(data-content);
+            -webkit-text-stroke: 4px #fff;
+            position: absolute;
+            left: 0;
+            top: 0;
+            z-index: -1;
+        }
+        .white-shadow-big {
+            position: relative;
+            /* text-shadow:0 0 15px rgb(255, 255, 255); */
         }
 
     </style>
@@ -157,13 +195,23 @@
                     <img class="full-size-sprite" src="imgs/64modified_8x_0003_hit_left.png" style="z-index:30;"
                         :style="{display: leftBulletTimeout > 0 ? '' : 'none'}" />
                         
-                    <img class="full-size-sprite" src="imgs/64modified_8x_0007_ui.png" style="z-index:40;"
-                    :style="{display: isPlaying ? 'none' : ''}" />
+                    <!-- <img class="full-size-sprite" src="imgs/64modified_8x_0007_ui.png" style="z-index:40;"
+                    :style="{display: isPlaying ? 'none' : ''}" /> -->
 
                     <div class="full-size-sprite" id="overlay">
-                        <div id="top-overlay">
+                        <div id="top-overlay" class="full-size-sprite" style="z-index: 50; color: black;">
                             <div class="progress-bar"><span :style="{width: (100 * playbackBeats / totalBeats) + '%'}"></span></div>
-                            {{totalScore}}<br>
+                            <div class="score white-shadow-big" :data-content="totalScore">{{ totalScore }}</div>
+                            <div id="game-tip" class="" :style="{display: (scores.length==0 && !isPlaying) ? '' : 'none'}">
+                                <!-- <div class="white-shadow-big" data-content="操作：">操作：</div> -->
+                                <div class="white-shadow-big" data-content="空格：开始/结束游戏">空格：开始/结束游戏</div>
+                                <div class="white-shadow-big" data-content="A/D：摇晃脑袋">A/D：摇晃脑袋</div>
+                            </div>
+                            <div id="game-over" class="" :style="{display: (scores.length>0 && !isPlaying) ? '' : 'none'}">
+                                <!-- <div class="white-shadow-big" style="font-size: 40px;" data-content="">Game Over</div> -->
+                                <div class="white-shadow-big" :data-content="scoreComment"style="font-size: 40px;">{{scoreComment}}</div>
+                                <div class="white-shadow-big" :data-content="scoreStats" v-html="scoreStats"></div>
+                            </div>
                         </div>
                         <span id="hitline"
                             :style="{top: (hitLinePosition * 100) + '%', display: isPlaying ? '' : 'none'}"></span>
@@ -173,7 +221,7 @@
                             :style="getStaticIconStyle(-1)" />
                         <img class="note-icon" src="imgs/bullet_outline.png" style="z-index: 4;"
                             :style="getStaticIconStyle(1)" />
-                        <span class="hit-particle" v-for="particle in particles"
+                        <span class="hit-particle white-shadow" v-for="particle in particles"
                             :style="getParticleStyle(particle)">{{particle.content}}</span>
                     </div>
 
