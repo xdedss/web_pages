@@ -4,6 +4,7 @@ $(function () {
     const GAME_STATE_MENU = 0;
     const GAME_STATE_PLAYING = 1;
     const GAME_STATE_OVER = 2;
+    const GAME_STATE_LOADING = 3;
 
     const SPRITE_LEFT = -1;
     const SPRITE_CENTER = 0;
@@ -352,8 +353,8 @@ $(function () {
                 lastT = t;
 
                 // handle input
-                leftInputTracker.update(window.kb.getKey('a'));
-                rightInputTracker.update(window.kb.getKey('d'));
+                leftInputTracker.update(window.kb.getKey('a') || window.kb.getKey('ArrowLeft'));
+                rightInputTracker.update(window.kb.getKey('d') || window.kb.getKey('ArrowRight'));
                 spaceInputTracker.update(window.kb.getKey('Space'));
 
                 // sprite movement
@@ -428,7 +429,7 @@ $(function () {
                     }
 
                 }
-                else {
+                else if (data.gameState == GAME_STATE_MENU || data.gameState == GAME_STATE_OVER) {
                     if (spaceInputTracker.becomeTrue()) {
                         data.playDemo();
                     }
@@ -481,6 +482,7 @@ $(function () {
         },
         methods: {
             async preloadAsyncContents(url) {
+                this.gameState = GAME_STATE_LOADING;
                 preloadSongDefs = await fetchJson(url);
                 for (let note of preloadSongDefs.notes) {
                     if (SPRITE_DIRECTION_MAP[note.direction] !== undefined) {
@@ -663,6 +665,9 @@ $(function () {
             },
             showStat() {
                 return this.gameState == GAME_STATE_OVER;
+            },
+            showLoading() {
+                return this.gameState == GAME_STATE_LOADING;
             },
             totalScore() {
                 let res = 0;

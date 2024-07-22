@@ -245,6 +245,9 @@
                                 <div class="white-shadow-big" :data-content="scoreStats" v-html="scoreStats"></div>
                                 <div class="white-shadow-big" data-content="按空格键重玩">按空格键重玩</div>
                             </div>
+                            <div id="game-loading" :style="{display: showLoading ? '' : 'none'}">
+                                <div class="white-shadow-big" data-content="准备中...">准备中...</div>
+                            </div>
                         </div>
 
                         <div id="btn-space" v-on:pointerdown="handleBtn('space')" :style="{display: isMobile ? '' : 'none'}"></div>
