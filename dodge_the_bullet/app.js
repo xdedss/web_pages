@@ -19,6 +19,8 @@ $(function () {
     const NOTE_STATE_MISS = 2;
     const NOTE_STATE_EMPTY = 3;
 
+    const IS_MOBILE = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+
     let animationHandle = null;
     let inBackground = false;
 
@@ -35,7 +37,12 @@ $(function () {
         return {
             state: !!initialState,
             lastState: !!initialState,
+            override: null,
             update(state) {
+                if (this.override !== null) {
+                    state = this.override;
+                    this.override = null;
+                }
                 this.lastState = this.state;
                 this.state = state;
             },
@@ -44,6 +51,9 @@ $(function () {
             },
             becomeFalse() {
                 return this.lastState && !this.state;
+            },
+            overrideNextUpdate(value) {
+                this.override = value;
             },
         };
     };
@@ -97,6 +107,7 @@ $(function () {
             return {
                 // ===== settings =====
                 windowSize: 100,
+                isMobile: IS_MOBILE,
                 // dodge animation duration in beats
                 dodgeDuration: 0.5,
                 // bullet animation duration in beats
@@ -626,6 +637,17 @@ $(function () {
             playDemo() {
                 this.startPlayUrl('./songs/ymca.json');
             },
+            handleBtn(btnName) {
+                if (btnName == 'a') {
+                    leftInputTracker.overrideNextUpdate(true);
+                }
+                else if (btnName == 'd') {
+                    rightInputTracker.overrideNextUpdate(true);
+                }
+                else if (btnName == 'space') {
+                    spaceInputTracker.overrideNextUpdate(true);
+                }
+            },
         },
         computed: {
             noteIndexInRoi() {
@@ -702,7 +724,7 @@ $(function () {
                 }
                 if (missCount == 0) {
                     if (emptyCount <= 10) return '毫发无伤';
-                    else return '假动作之王';
+                    else return '假动作';
                 }
                 if (missCount <= 10) {
                     return 'FIGHT!';

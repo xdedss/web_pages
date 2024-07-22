@@ -47,10 +47,10 @@
             /* center */
             justify-content: center;
             align-items: center;
-            overflow-y: hidden;
+            overflow: hidden;
 
-            height: 80vh;
-            background-image: url(imgs/aud.png);
+            height: 75vh;
+            background-image: url(imgs/aud_s.png);
             background-size: cover;
 
             user-select: none;
@@ -58,9 +58,9 @@
         }
 
         .sprite-container {
-            height: 80vh;
-            width: 80vh;
-            min-width: 80vh;
+            height: 75vh;
+            width: 75vh;
+            min-width: 75vh;
             position: relative;
         }
 
@@ -112,6 +112,31 @@
             height: 4px;
             background-color: rgba(61, 27, 255, 0.5);
             border-radius: 2px;
+        }
+
+        #btn-a {
+            position: absolute;
+            width: 14%;
+            height: 14%;
+            left: 31.4%;
+            bottom: 1.5%;
+            z-index: 100;
+        }
+        #btn-d {
+            position: absolute;
+            width: 14%;
+            height: 14%;
+            right: 31.4%;
+            bottom: 1.5%;
+            z-index: 100;
+        }
+        #btn-space {
+            position: absolute;
+            left: 0;
+            right: 0;
+            top: 0;
+            bottom: 20%;
+            z-index: 99;
         }
 
 
@@ -202,8 +227,7 @@
                     <img class="full-size-sprite" src="imgs/64modified_8x_0003_hit_left.png" style="z-index:30;"
                         :style="{display: leftBulletTimeout > 0 ? '' : 'none'}" />
                         
-                    <!-- <img class="full-size-sprite" src="imgs/64modified_8x_0007_ui.png" style="z-index:40;"
-                    :style="{display: isPlaying ? 'none' : ''}" /> -->
+                    <img class="full-size-sprite" src="imgs/64modified_8x_0007_ui.png" style="z-index:40;" :style="{display: isMobile ? '' : 'none'}" />
 
                     <div class="full-size-sprite" id="overlay">
                         <div id="top-overlay" class="full-size-sprite" style="z-index: 50; color: black;">
@@ -213,6 +237,7 @@
                                 <!-- <div class="white-shadow-big" data-content="操作：">操作：</div> -->
                                 <div class="white-shadow-big" data-content="A/D：摇晃脑袋，向相反方向躲避子弹">A/D：摇晃脑袋，向相反方向躲避子弹</div>
                                 <div class="white-shadow-big" data-content="空格：开始/结束游戏">空格：开始/结束游戏</div>
+                                <div class="white-shadow-big" data-content="移动端点击屏幕开始游戏">移动端点击屏幕开始游戏</div>
                             </div>
                             <div id="game-over" class="" :style="{display: showStat ? '' : 'none'}">
                                 <!-- <div class="white-shadow-big" style="font-size: 40px;" data-content="">Game Over</div> -->
@@ -221,6 +246,11 @@
                                 <div class="white-shadow-big" data-content="按空格键重玩">按空格键重玩</div>
                             </div>
                         </div>
+
+                        <div id="btn-space" v-on:pointerdown="handleBtn('space')" :style="{display: isMobile ? '' : 'none'}"></div>
+                        <div id="btn-a" v-on:pointerdown="handleBtn('a')" :style="{display: isMobile ? '' : 'none'}"></div>
+                        <div id="btn-d" v-on:pointerdown="handleBtn('d')" :style="{display: isMobile ? '' : 'none'}"></div>
+
                         <span id="hitline"
                             :style="{top: (hitLinePosition * 100) + '%', display: gameState == 1 ? '' : 'none'}"></span>
                         <img class="note-icon" v-for="noteIndex in noteIndexInRoi" src="imgs/bullet.png"
@@ -244,7 +274,7 @@
             
         </div>
 
-        <pre id="pre">(╯‵□′)╯︵┻━┻</pre>
+        <pre id="pre">如果音画不同步可以在这里调整(╯‵□′)╯︵┻━┻</pre>
 
     </div>
     <script src="app.js"></script>
