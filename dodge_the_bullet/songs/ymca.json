@@ -2,7 +2,7 @@
     "bpm": 127,
     "totalBeats": 270,
     "startOffset": 2.1,
-    "url": "./songs/ymca.mp3",
+    "url": "./songs/ymca_small.mp3",
     "notes": [
         {
             "time": 0.0,
