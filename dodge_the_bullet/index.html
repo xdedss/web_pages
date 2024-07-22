@@ -6,6 +6,11 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
 
+    <meta itemprop="name" content="耐狙王"/>
+    <meta itemprop="image" content="https://s3.bmp.ovh/imgs/2024/07/22/e797083d9a23a371.png" />
+    <meta name="description" itemprop="description" content="帮助懂王躲避子弹）" />
+
+
     <link rel="icon" href="../favicon.ico">
     <link rel="stylesheet" href="../common/spectre.min.css">
     <link rel="stylesheet" href="../common/spectre-exp.min.css">
@@ -205,20 +210,21 @@
             <div class="game" ondragstart="return false" style="display: none;" :style="{display: ''}">
                 <div class="sprite-container">
                     <!-- main sprite -->
-                    <div class="full-size-sprite" :style="{display: spriteState == -1 ? '' : 'none'}"
-                        style="z-index: 10;">
-                        <img class="full-size-sprite" src="imgs/64modified_8x_0006_left.png"
-                            :style="getMainSpriteStyle()" />
-                    </div>
-                    <div class="full-size-sprite" :style="{display: spriteState == 0 ? '' : 'none'}"
-                        style="z-index: 10;">
-                        <img class="full-size-sprite" src="imgs/64modified_8x_0005_center.png"
-                            :style="getMainSpriteStyle()" />
-                    </div>
-                    <div class="full-size-sprite" :style="{display: spriteState == 1 ? '' : 'none'}"
-                        style="z-index: 10;">
-                        <img class="full-size-sprite" src="imgs/64modified_8x_0004_right.png"
-                            :style="getMainSpriteStyle()" />
+                    <div class="full-size-sprite" :style="getMainSpriteStyle()">
+                        <div class="full-size-sprite" :style="{display: spriteState == -1 ? '' : 'none'}"
+                            style="z-index: 10;">
+                            <img class="full-size-sprite" src="imgs/64modified_8x_0006_left.png"/>
+                        </div>
+                        <div class="full-size-sprite" :style="{display: spriteState == 0 ? '' : 'none'}"
+                            style="z-index: 10;">
+                            <img class="full-size-sprite" src="imgs/64modified_8x_0005_center.png" :style="{display: spriteAnim == 0 ? '' : 'none'}"/>
+                            <img class="full-size-sprite" src="imgs/64modified_8x_0008_center_w1.png" :style="{display: spriteAnim == 1 ? '' : 'none'}"/>
+                            <img class="full-size-sprite" src="imgs/64modified_8x_0009_center_w2.png" :style="{display: spriteAnim == 2 ? '' : 'none'}"/>
+                        </div>
+                        <div class="full-size-sprite" :style="{display: spriteState == 1 ? '' : 'none'}"
+                            style="z-index: 10;">
+                            <img class="full-size-sprite" src="imgs/64modified_8x_0004_right.png"/>
+                        </div>
                     </div>
 
                     <img class="full-size-sprite" src="imgs/64modified_8x_0001_pod.png" style="z-index: 20;" />
@@ -273,6 +279,9 @@
             <div>
                 <span>音频延迟(s)</span>
                 <input type="number" value="0.0" step="0.01" max="0.5" min="-0.5" v-model="audioDelay">
+                <span>&nbsp;·&nbsp;</span>
+                <span>枪声音效</span>
+                <input type="checkbox" v-model="enableGunAudio">
             </div>
             
         </div>
@@ -280,7 +289,7 @@
         <pre id="pre">如果音画不同步可以在这里调整(╯‵□′)╯︵┻━┻</pre>
 
     </div>
-    <script src="app.js"></script>
+    <script src="app.js?v=0.2"></script>
 
 </body>
 

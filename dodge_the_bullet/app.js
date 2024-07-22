@@ -14,6 +14,10 @@ $(function () {
         'SPRITE_CENTER': SPRITE_CENTER,
         'SPRITE_RIGHT': SPRITE_RIGHT,
     };
+    const SPRITE_ANIM_IDLE = 0;
+    const SPRITE_ANIM_W1 = 1;
+    const SPRITE_ANIM_W2 = 2;
+    const SPRITE_ANIM_SEQUENCE = [SPRITE_ANIM_IDLE, SPRITE_ANIM_W2, SPRITE_ANIM_W1, SPRITE_ANIM_W2, SPRITE_ANIM_W1, SPRITE_ANIM_W2, SPRITE_ANIM_IDLE, SPRITE_ANIM_IDLE];
 
     const NOTE_STATE_INITIAL = 0;
     const NOTE_STATE_HIT = 1;
@@ -109,6 +113,7 @@ $(function () {
                 // ===== settings =====
                 windowSize: 100,
                 isMobile: IS_MOBILE,
+                enableGunAudio: true,
                 // dodge animation duration in beats
                 dodgeDuration: 0.5,
                 // bullet animation duration in beats
@@ -133,6 +138,7 @@ $(function () {
                 // ===== state vars =====
                 // state of the main char
                 spriteState: SPRITE_CENTER,
+                spriteAnim: SPRITE_ANIM_IDLE,
                 // dodging
                 leftTimeout: 0,
                 rightTimeout: 0,
@@ -176,6 +182,9 @@ $(function () {
             let db = 0.0;
             let lastT = new Date().getTime() / 1000.0;
             let t = lastT;
+
+            // controls the center animation
+            let centerIdleBeats = 0;
 
             // start from currentIndex, find the next nearest index with given direction
             // return nearest note index
@@ -392,7 +401,7 @@ $(function () {
                     });
                     data.nextNotePreloadIndex = trackPassLine(data.nextNotePreloadIndex, noteIndexPassed => {
                         // play audio
-                        if (!inBackground) {
+                        if (!inBackground && data.enableGunAudio) {
                             playAudio(gunAudioBuffer, gunGainNode);
                         }
                     }, data.gunAudioBias);
@@ -447,6 +456,21 @@ $(function () {
                 }
                 if (data.rightBulletTimeout > 0) {
                     data.rightBulletTimeout -= db;
+                }
+                // idle anim
+                if (data.leftTimeout <= 0 && data.rightTimeout <= 0) {
+                    centerIdleBeats += db;
+                }
+                else {
+                    centerIdleBeats = 0;
+                }
+                if (data.gameState == GAME_STATE_PLAYING) {
+                    data.spriteAnim = SPRITE_ANIM_SEQUENCE[
+                        Math.floor(centerIdleBeats * 2 - 0.1 + SPRITE_ANIM_SEQUENCE.length) % SPRITE_ANIM_SEQUENCE.length
+                    ];
+                }
+                else {
+                    data.spriteAnim = SPRITE_ANIM_IDLE;
                 }
                 // particles
                 for (let particle of data.particles) {
