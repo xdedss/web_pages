@@ -36,6 +36,7 @@
             background: #fff;
             width: auto;
             padding: 10px;
+            overflow-x: hidden;
         }
 
         .navbar {
@@ -256,7 +257,7 @@
                             </div>
                         </div>
 
-                        <div id="btn-space" v-on:pointerdown="handleBtn('space')" :style="{display: isMobile ? '' : 'none'}"></div>
+                        <div id="btn-space" v-on:pointerup="handleBtn('space')" :style="{display: isMobile ? '' : 'none'}"></div>
                         <div id="btn-a" v-on:pointerdown="handleBtn('a')" :style="{display: isMobile ? '' : 'none'}"></div>
                         <div id="btn-d" v-on:pointerdown="handleBtn('d')" :style="{display: isMobile ? '' : 'none'}"></div>
 
