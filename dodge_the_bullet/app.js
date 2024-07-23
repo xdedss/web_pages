@@ -65,6 +65,7 @@ $(function () {
     const leftInputTracker = createBoolTracker(false);
     const rightInputTracker = createBoolTracker(false);
     const spaceInputTracker = createBoolTracker(false);
+    const audioSyncTracker = createBoolTracker(false);
 
     let preloadSongDefs = null;
     const audioContext = new (window.AudioContext || window.webkitAudioContext)();
@@ -73,6 +74,7 @@ $(function () {
     gunGainNode.connect(audioContext.destination);
     let audioSource = null;
     let gunAudioBuffer = null;
+    let songAudioBuffer = null;
     async function loadAudio(path) {
         let response = await fetch(path);
         let arrayBuffer = await response.arrayBuffer();
@@ -85,9 +87,9 @@ $(function () {
         source.connect(dest == null ? audioContext.destination : dest);
         return source;
     }
-    function playAudio(audioBuffer, dest) {
+    function playAudio(audioBuffer, dest, when, offset, duration) {
         let source = prepareSource(audioBuffer, dest);
-        source.start();
+        source.start(when, offset, duration);
         return source;
     }
 
@@ -132,8 +134,8 @@ $(function () {
                 particleLifeSeconds: 1.5,
                 particleHorizontalTravel: 0.3, // relative to height
                 // audio
-                audioDelay: 0.0, // sec
-                gunAudioBias: 0.18, // sec
+                audioDelay: 0.18, // sec
+                gunAudioBias: 0.03, // sec
 
                 // ===== state vars =====
                 // state of the main char
@@ -166,6 +168,7 @@ $(function () {
                 // playback progress
                 playbackBeats: 0,
                 totalBeats: 0,
+                startOffset: 0.0, // sec
                 // state
                 gameState: GAME_STATE_MENU,
 
@@ -366,6 +369,14 @@ $(function () {
                 rightInputTracker.update(window.kb.getKey('d') || window.kb.getKey('ArrowRight'));
                 spaceInputTracker.update(window.kb.getKey('Space'));
 
+                // resync audio
+                audioSyncTracker.update(data.gameState == GAME_STATE_PLAYING && (data.playbackBeats / 4) % 1.0 < 0.5);
+                if (audioSyncTracker.becomeTrue()) {
+                    console.log('sync');
+                    if (audioSource) audioSource.stop();
+                    audioSource = playAudio(songAudioBuffer, null, audioContext.currentTime, Math.max(0, data.playbackBeats / data.bpm * 60 + data.startOffset + data.audioDelay));
+                }
+
                 // sprite movement
                 if (rightInputTracker.becomeTrue()) {
                     data.rightTimeout = data.dodgeDuration;
@@ -404,7 +415,7 @@ $(function () {
                         if (!inBackground && data.enableGunAudio) {
                             playAudio(gunAudioBuffer, gunGainNode);
                         }
-                    }, data.gunAudioBias);
+                    }, data.gunAudioBias + data.audioDelay);
                     // track events
                     data.nextEventIndex = trackEvent(data.nextEventIndex, eventIndex => {
                         let event = data.events[eventIndex];
@@ -515,7 +526,7 @@ $(function () {
                 }
                 await audioContext.resume();
                 gunAudioBuffer = await loadAudio('./songs/gun.mp3');
-                audioSource = prepareSource(await loadAudio(preloadSongDefs.url));
+                songAudioBuffer = await loadAudio(preloadSongDefs.url);
             },
             async startPlayUrl(url) {
                 await this.preloadAsyncContents(url);
@@ -540,13 +551,15 @@ $(function () {
                 this.events = song.events;
                 this.totalBeats = song.totalBeats;
                 // play audio
-                audioSource.start();
+                // audioSource = prepareSource(songAudioBuffer);
+                // audioSource.start();
                 // clear scores
                 this.scores = [];
                 // reset state
-                this.playbackBeats = - (song.startOffset + this.audioDelay) * song.bpm / 60.0;
+                this.playbackBeats = - (song.startOffset) * song.bpm / 60.0;
                 this.gameState = GAME_STATE_PLAYING;
                 this.bpm = song.bpm;
+                this.startOffset = song.startOffset;
                 this.notesRoi = [0, 0];
                 this.nearestLeftIndex = -1;
                 this.nearestRightIndex = -1;
@@ -555,6 +568,7 @@ $(function () {
                 this.nextEventIndex = 0;
                 this.leftTimeout = 0;
                 this.rightTimeout = 0;
+                this.centerIdleBeats = 0;
             },
             endGame() {
                 if (audioSource) {
@@ -661,7 +675,7 @@ $(function () {
                 return Math.round(res);
             },
             playDemo() {
-                this.startPlayUrl('./songs/ymca.json');
+                this.startPlayUrl('./songs/ymca.json?v=0.3');
             },
             handleBtn(btnName) {
                 if (btnName == 'a') {
